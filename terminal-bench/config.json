@@ -1,0 +1,17 @@
+{
+  "benchmark": "terminal-bench-2.0",
+  "tasks": 89,
+  "max_turns_per_task": 100,
+  "runtime": "docker",
+  "difficulty_tiers": ["easy", "medium", "hard"],
+  "agents": {
+    "claw": {
+      "command": "$CLAW_BIN",
+      "type": "cli"
+    },
+    "claude": {
+      "command": "$CLAUDE_BIN",
+      "type": "cli"
+    }
+  }
+}
