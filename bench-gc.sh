@@ -31,7 +31,7 @@ measure_rss_growth() {
     "$bin" "$@" >/dev/null 2>&1 &
     local pid=$!
 
-    trap 'kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null' EXIT INT TERM
+    trap "kill $pid 2>/dev/null; wait $pid 2>/dev/null" INT TERM
 
     local first_rss=0
     local peak_rss=0
@@ -53,6 +53,7 @@ measure_rss_growth() {
     done
 
     wait "$pid" 2>/dev/null || true
+    trap - INT TERM
 
     local growth=0
     if [ "$first_rss" -gt 0 ]; then
