@@ -3,3 +3,17 @@ env.sh
 /tmp/
 .omc/
 .claude/
+
+# Task effectiveness benchmark results (large JSON files)
+swebench/results/
+terminal-bench/results/
+polyglot/results/
+
+# Python virtual environments
+.venv/
+venv/
+
+# Auto-installed benchmark harnesses
+.swebench-harness/
+.terminal-bench-harness/
+.polyglot-harness/
