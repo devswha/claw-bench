@@ -10,11 +10,9 @@ Measured on Ubuntu 24.04 (Linux 6.8), same machine, same API endpoint.
 
 | Benchmark | Claw (Rust) | Claude (Node.js) | Ratio |
 |-----------|-------------|-------------------|-------|
-| Startup time | **2.9 ms** | 110 ms | 38x faster |
+| Startup time | **1.3 ms** | 120.4 ms | 91x faster |
 | Binary size | **13 MB** | 218 MB | 17x smaller |
-| Memory (idle) | **4 MB** | 192 MB | 47x less |
-| Memory (API call) | **10 MB** | 321 MB | 31x less |
-| Response time | **3.1 s** | 11.2 s | 3.6x faster |
+| Memory (idle) | **4.0 MB** | 191.7 MB | 48x less |
 
 > Results vary by machine, network, and API provider. Run your own benchmarks.
 
@@ -22,14 +20,14 @@ Measured on Ubuntu 24.04 (Linux 6.8), same machine, same API endpoint.
 
 | Benchmark | Claw (Rust) | Claude (Node.js) | Ratio |
 |-----------|-------------|-------------------|-------|
-| Syscalls (--version) | **78** | 731 | 9.3x fewer |
-| File opens (--version) | **5** | 19 | 3.8x fewer |
-| File reads (--version) | **7** | 31 | 4.4x fewer |
-| File opens (API call) | **181** | 55,592 | 307x fewer |
-| File reads (API call) | **131** | 35,359 | 270x fewer |
-| Threads (API call) | — | 18 | — |
-| CPU instructions | — | — | *requires `perf` access* |
-| Page faults | — | — | *requires `perf` access* |
+| Syscalls | **78** | 1,476 | 18.9x fewer |
+| CPU cycles | **4.7M** | 387.9M | 83x fewer |
+| CPU instructions | **3.0M** | 423.6M | 139x fewer |
+| Cache misses | **54,684** | 2,512,171 | 45.9x fewer |
+| Page faults | **228** | 20,149 | 88x fewer |
+| File opens | **5** | 19 | 3.8x fewer |
+| File reads | **7** | 31 | 4.4x fewer |
+| Threads (API call) | — | 19 | — |
 
 > These numbers explain *why* the performance gap exists — not just *that* it exists.
 > CPU and page fault benchmarks require `perf_event_paranoid ≤ 2`. See Prerequisites.
