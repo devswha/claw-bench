@@ -4,43 +4,55 @@ set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
+run_required_benchmark() {
+    local script="$1"
+
+    "$DIR/$script"
+
+    echo ""
+    echo "----------------------------------------"
+    echo ""
+}
+
+run_optional_benchmark() {
+    local script="$1"
+
+    if "$DIR/$script"; then
+        :
+    else
+        local rc=$?
+        echo "[WARN] $script failed or skipped (exit $rc)"
+    fi
+
+    echo ""
+    echo "----------------------------------------"
+    echo ""
+}
+
 echo "========================================"
 echo "  Claw Code vs Claude Code Benchmark"
 echo "  $(date '+%Y-%m-%d %H:%M:%S')"
 echo "========================================"
 echo ""
 
-"$DIR/bench-startup.sh"
-echo ""
-echo "----------------------------------------"
-echo ""
-"$DIR/bench-size.sh"
-echo ""
-echo "----------------------------------------"
-echo ""
-"$DIR/bench-memory.sh"
-echo ""
-echo "----------------------------------------"
-echo ""
-"$DIR/bench-ttft.sh"
-echo ""
-echo "----------------------------------------"
-echo ""
-"$DIR/bench-session.sh"
-echo ""
-echo "----------------------------------------"
-echo ""
+for script in \
+    bench-startup.sh \
+    bench-size.sh \
+    bench-memory.sh \
+    bench-ttft.sh \
+    bench-session.sh
+do
+    run_required_benchmark "$script"
+done
 
-# Runtime overhead benchmarks (require strace/perf — skip if missing)
-for script in bench-syscall.sh bench-cpu.sh bench-io.sh bench-threads.sh bench-gc.sh; do
-    if "$DIR/$script" 2>/dev/null; then
-        echo ""
-        echo "----------------------------------------"
-        echo ""
-    else
-        echo "[SKIP] $script (missing dependency or error)"
-        echo ""
-    fi
+for script in \
+    bench-syscall.sh \
+    bench-cpu.sh \
+    bench-io.sh \
+    bench-threads.sh \
+    bench-gc.sh
+do
+    run_optional_benchmark "$script"
 done
 
 echo "========================================"

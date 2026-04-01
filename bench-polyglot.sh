@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Benchmark: Aider Polyglot — multi-language code editing + self-repair
+# Benchmark: Aider Polyglot — Claw-first multi-language code editing + self-repair
 # WARNING: This benchmark takes hours to run and costs API tokens
 set -euo pipefail
 source "$(dirname "$0")/env.sh"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Benchmark: Terminal-Bench 2.0 — terminal-native task completion
+# Benchmark: Terminal-Bench 2.0 — Claw-first terminal-native task completion
 # WARNING: This benchmark takes hours to run and requires Docker
 set -euo pipefail
 source "$(dirname "$0")/env.sh"

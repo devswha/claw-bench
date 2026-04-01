@@ -3,6 +3,8 @@
 set -euo pipefail
 source "$(dirname "$0")/env.sh"
 
+command -v bc &>/dev/null || { echo "bc required: sudo apt install bc"; exit 1; }
+
 echo "=== Thread Footprint Benchmark ==="
 echo ""
 
@@ -12,29 +14,6 @@ for bin in "$CLAW_BIN" "$CLAUDE_BIN"; do
         exit 1
     fi
 done
-
-count_threads() {
-    local label="$1"
-    local bin="$2"
-    shift 2
-
-    # Start process in background
-    "$bin" "$@" >/dev/null 2>&1 &
-    local pid=$!
-
-    # Wait briefly for process to initialize
-    sleep 0.5
-
-    local threads=0
-    if kill -0 "$pid" 2>/dev/null; then
-        threads=$(ls "/proc/$pid/task" 2>/dev/null | wc -l || echo "0")
-    fi
-
-    # Clean up
-    wait "$pid" 2>/dev/null || true
-
-    echo "$threads"
-}
 
 printf "%-12s %-10s %-10s %s\n" "" "Claw" "Claude" "Ratio"
 printf "%-12s %-10s %-10s %s\n" "" "----" "------" "-----"
@@ -65,6 +44,7 @@ echo "--- Thread Count (API call) ---"
         claw_threads=$(ls "/proc/$claw_pid/task" 2>/dev/null | wc -l || echo "0")
         claw_lwp=$(ps --no-headers -o nlwp -p "$claw_pid" 2>/dev/null | tr -d ' ' || echo "N/A")
     fi
+    kill "$claw_pid" 2>/dev/null || true
     wait "$claw_pid" 2>/dev/null || true
 
     "$CLAUDE_BIN" -p 'Write a short paragraph about benchmarking' --max-turns 1 >/dev/null 2>&1 &
@@ -77,6 +57,7 @@ echo "--- Thread Count (API call) ---"
         claude_threads=$(ls "/proc/$claude_pid/task" 2>/dev/null | wc -l || echo "0")
         claude_lwp=$(ps --no-headers -o nlwp -p "$claude_pid" 2>/dev/null | tr -d ' ' || echo "N/A")
     fi
+    kill "$claude_pid" 2>/dev/null || true
     wait "$claude_pid" 2>/dev/null || true
 
     if [ "$claw_threads" -gt 0 ] 2>/dev/null; then

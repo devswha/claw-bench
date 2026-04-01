@@ -7,6 +7,7 @@ echo "=== Memory Allocation Pressure Benchmark ==="
 echo ""
 
 command -v perf &>/dev/null || { echo "perf not found. Install: sudo apt install linux-tools-$(uname -r)"; exit 1; }
+command -v bc &>/dev/null || { echo "bc required: sudo apt install bc"; exit 1; }
 
 for bin in "$CLAW_BIN" "$CLAUDE_BIN"; do
     if [ ! -x "$bin" ]; then
@@ -23,6 +24,23 @@ extract_faults() {
     echo "$output" | grep "$event" | awk '{gsub(/,/,"",$1); print $1}'
 }
 
+run_perf_faults() {
+    local timeout_secs="$1"
+    shift
+    local output
+
+    set +e
+    output=$(timeout -s INT "$timeout_secs" perf stat -e page-faults,minor-faults,major-faults "$@" 2>&1 1>/dev/null)
+    local status=$?
+    set -e
+
+    if [ "$status" -ne 0 ] && [ "$status" -ne 124 ]; then
+        return "$status"
+    fi
+
+    printf "%s\n" "$output"
+}
+
 measure_rss_growth() {
     local label="$1"
     local bin="$2"
@@ -36,6 +54,8 @@ measure_rss_growth() {
     local first_rss=0
     local peak_rss=0
     local samples=0
+    local start_ts
+    start_ts=$(date +%s)
 
     while kill -0 "$pid" 2>/dev/null; do
         local rss
@@ -49,9 +69,15 @@ measure_rss_growth() {
             fi
             samples=$((samples + 1))
         fi
+        if [ "$(date +%s)" -ge $((start_ts + ${API_CALL_TIMEOUT:-45})) ]; then
+            break
+        fi
         sleep "$POLL"
     done
 
+    if kill -0 "$pid" 2>/dev/null; then
+        kill "$pid" 2>/dev/null || true
+    fi
     wait "$pid" 2>/dev/null || true
     trap - INT TERM
 
@@ -68,10 +94,12 @@ echo "--- Page Faults (API call) ---"
     export ANTHROPIC_BASE_URL="$API_BASE_URL"
     export ANTHROPIC_API_KEY="$API_KEY"
 
-    claw_perf=$(perf stat -e page-faults,minor-faults,major-faults \
-        "$CLAW_BIN" -p 'say hi' --max-turns 1 2>&1 1>/dev/null)
-    claude_perf=$(perf stat -e page-faults,minor-faults,major-faults \
-        "$CLAUDE_BIN" -p 'say hi' --max-turns 1 2>&1 1>/dev/null)
+    set +e
+    claw_perf=$(run_perf_faults "${API_CALL_TIMEOUT:-45}" "$CLAW_BIN" -p 'say hi' --max-turns 1)
+    claw_perf_status=$?
+    claude_perf=$(run_perf_faults "${API_CALL_TIMEOUT:-45}" "$CLAUDE_BIN" -p 'say hi' --max-turns 1)
+    claude_perf_status=$?
+    set -e
 
     printf "%-16s %-12s %-12s %s\n" "" "Claw" "Claude" "Ratio"
     printf "%-16s %-12s %-12s %s\n" "" "----" "------" "-----"
@@ -89,6 +117,13 @@ echo "--- Page Faults (API call) ---"
 
         printf "%-16s %-12s %-12s %s\n" "$event" "${claw_val:-0}" "${claude_val:-0}" "$ratio"
     done
+    if [ -z "$(extract_faults "$claw_perf" page-faults)" ] || [ -z "$(extract_faults "$claude_perf" page-faults)" ]; then
+        echo "ERROR: failed to parse page-fault counters" >&2
+        exit 1
+    fi
+    if [ "$claw_perf_status" -eq 124 ] || [ "$claude_perf_status" -eq 124 ]; then
+        echo "Note: page-fault profiling was interrupted at ${API_CALL_TIMEOUT:-45}s to cap lingering helper activity."
+    fi
     echo ""
 
     echo "--- RSS Growth (API call) ---"
@@ -115,4 +150,5 @@ echo "--- Page Faults (API call) ---"
     printf "%-16s %-12s %-12s %s\n" "Peak RSS (KB)" "$claw_peak" "$claude_peak" "$peak_ratio"
     printf "%-16s %-12s %-12s %s\n" "RSS growth (KB)" "$claw_growth" "$claude_growth" "$growth_ratio"
     printf "%-16s %-12s %-12s\n" "Samples" "$claw_samples" "$claude_samples"
+    echo "Note: RSS sampling is capped at ${API_CALL_TIMEOUT:-45}s if a process lingers after responding."
 )

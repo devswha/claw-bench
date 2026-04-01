@@ -3,14 +3,11 @@
 set -euo pipefail
 source "$(dirname "$0")/env.sh"
 
+command -v bc &>/dev/null || { echo "bc required: sudo apt install bc"; exit 1; }
+
 echo "=== Long Session Memory Benchmark ==="
 echo "Duration: ${SESSION_DURATION}s | Poll interval: ${SESSION_POLL_INTERVAL}s"
 echo ""
-
-if ! command -v pidstat &>/dev/null; then
-    echo "pidstat not found. Install: sudo apt install sysstat"
-    exit 1
-fi
 
 for bin in "$CLAW_BIN" "$CLAUDE_BIN"; do
     if [ ! -x "$bin" ]; then
@@ -30,6 +27,7 @@ monitor_session() {
 
     local samples=()
     local elapsed=0
+    local timed_out=false
     while kill -0 "$pid" 2>/dev/null && [ "$elapsed" -lt "$SESSION_DURATION" ]; do
         local rss
         rss=$(ps -o rss= -p "$pid" 2>/dev/null || echo "0")
@@ -41,6 +39,10 @@ monitor_session() {
         elapsed=$((elapsed + SESSION_POLL_INTERVAL))
     done
 
+    if kill -0 "$pid" 2>/dev/null; then
+        timed_out=true
+        kill "$pid" 2>/dev/null || true
+    fi
     wait "$pid" 2>/dev/null || true
 
     if [ ${#samples[@]} -eq 0 ]; then
@@ -61,6 +63,9 @@ monitor_session() {
     printf "  Samples:  %d\n" "${#samples[@]}"
     printf "  Avg RSS:  %s KB  (%s MB)\n" "$avg_rss" "$(echo "scale=1; $avg_rss/1024" | bc)"
     printf "  Peak RSS: %s KB  (%s MB)\n" "$max_rss" "$(echo "scale=1; $max_rss/1024" | bc)"
+    if [ "$timed_out" = true ]; then
+        printf "  Note:     process was terminated after %ss to avoid hanging the suite\n" "$SESSION_DURATION"
+    fi
     echo ""
 }
 

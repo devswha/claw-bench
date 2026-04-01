@@ -5,16 +5,20 @@
 # Binary paths
 CLAW_BIN="$HOME/workspace/claw-code/rust/target/release/claw"
 CLAUDE_BIN="$(which claude 2>/dev/null || echo '/usr/local/bin/claude')"
+# Optional Codex CLI (uses local Codex login/auth, not ANTHROPIC_API_KEY)
+CODEX_BIN="$(which codex 2>/dev/null || echo '')"
+CODEX_MODEL="gpt-5.3-codex"
 
-# Anthropic API key (get one at console.anthropic.com)
+# Anthropic API settings for Claw/Claude benchmarks (get key at console.anthropic.com)
 API_BASE_URL="https://api.anthropic.com"
 API_KEY="REPLACE_ME_WITH_YOUR_API_KEY"
 
 # Benchmark settings
 HYPERFINE_WARMUP=3
 HYPERFINE_RUNS=10
+API_CALL_TIMEOUT=45      # seconds for API-path benchmarks that may linger on helper processes
 SESSION_DURATION=60        # seconds for long session benchmark
-SESSION_POLL_INTERVAL=1    # pidstat interval
+SESSION_POLL_INTERVAL=1    # seconds between RSS samples during session benchmark
 
 # Runtime overhead benchmark settings
 STRACE_FOLLOW_FORKS=true                  # trace child processes (-f flag)
