@@ -28,6 +28,21 @@ echo "----------------------------------------"
 echo ""
 "$DIR/bench-session.sh"
 echo ""
+echo "----------------------------------------"
+echo ""
+
+# Runtime overhead benchmarks (require strace/perf — skip if missing)
+for script in bench-syscall.sh bench-cpu.sh bench-io.sh bench-threads.sh bench-gc.sh; do
+    if "$DIR/$script" 2>/dev/null; then
+        echo ""
+        echo "----------------------------------------"
+        echo ""
+    else
+        echo "[SKIP] $script (missing dependency or error)"
+        echo ""
+    fi
+done
+
 echo "========================================"
 echo "  Benchmark complete"
 echo "========================================"
