@@ -31,6 +31,8 @@ measure_rss_growth() {
     "$bin" "$@" >/dev/null 2>&1 &
     local pid=$!
 
+    trap 'kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null' EXIT INT TERM
+
     local first_rss=0
     local peak_rss=0
     local samples=0
@@ -98,16 +100,18 @@ echo "--- Page Faults (API call) ---"
 
     if [ "$claw_peak" -gt 0 ] 2>/dev/null; then
         peak_ratio=$(echo "scale=1; $claude_peak / $claw_peak" | bc)
+        peak_ratio="${peak_ratio}x"
     else
         peak_ratio="N/A"
     fi
     if [ "$claw_growth" -gt 0 ] 2>/dev/null; then
         growth_ratio=$(echo "scale=1; $claude_growth / $claw_growth" | bc)
+        growth_ratio="${growth_ratio}x"
     else
         growth_ratio="N/A"
     fi
 
-    printf "%-16s %-12s %-12s %s\n" "Peak RSS (KB)" "$claw_peak" "$claude_peak" "${peak_ratio}x"
-    printf "%-16s %-12s %-12s %s\n" "RSS growth (KB)" "$claw_growth" "$claude_growth" "${growth_ratio}x"
+    printf "%-16s %-12s %-12s %s\n" "Peak RSS (KB)" "$claw_peak" "$claude_peak" "$peak_ratio"
+    printf "%-16s %-12s %-12s %s\n" "RSS growth (KB)" "$claw_growth" "$claude_growth" "$growth_ratio"
     printf "%-16s %-12s %-12s\n" "Samples" "$claw_samples" "$claude_samples"
 )
