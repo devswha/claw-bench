@@ -34,6 +34,19 @@ Measured on Ubuntu 24.04 (Linux 6.8), same machine, same API endpoint.
 > These numbers explain *why* the performance gap exists — not just *that* it exists.
 > CPU and page fault benchmarks require `perf_event_paranoid ≤ 2`. See Prerequisites.
 
+### Task Effectiveness (what it can do)
+
+These benchmarks measure whether the CLI tools can successfully complete real-world development tasks. They require Docker, Python, and API keys, and take hours to run.
+
+| Benchmark | Tasks | Measures | Source |
+|-----------|-------|----------|--------|
+| [SWE-bench Verified](https://swebench.com/) | 500 | Real GitHub issue resolution | princeton-nlp |
+| [Terminal-Bench 2.0](https://tbench.ai/) | 89 | Terminal-native task completion | Laude Institute |
+| [Aider Polyglot](https://aider.chat/2024/12/21/polyglot.html) | 225 | Multi-language code editing | Aider-AI |
+
+> Run individually: `./bench-swebench.sh`, `./bench-terminal.sh`, `./bench-polyglot.sh`
+> These are NOT included in `bench-all.sh` due to long runtime and API cost.
+
 ## Benchmarks
 
 | Script | Measures | Tool |
@@ -48,7 +61,10 @@ Measured on Ubuntu 24.04 (Linux 6.8), same machine, same API endpoint.
 | `bench-io.sh` | File open/read/write counts | `strace -e trace=` |
 | `bench-threads.sh` | Thread/process footprint | `/proc/pid/task` |
 | `bench-gc.sh` | Page faults, RSS growth | `perf stat` + `/proc` |
-| `bench-all.sh` | All of the above | — |
+| `bench-all.sh` | All runtime benchmarks | — |
+| `bench-swebench.sh` | SWE-bench Verified score | Docker + Python |
+| `bench-terminal.sh` | Terminal-Bench 2.0 score | Docker + Harbor |
+| `bench-polyglot.sh` | Aider Polyglot score | Python + git |
 
 ## Prerequisites
 
@@ -61,6 +77,19 @@ sudo apt install strace linux-tools-common linux-tools-$(uname -r)
 
 # perf may require relaxing paranoid mode:
 echo 0 | sudo tee /proc/sys/kernel/perf_event_paranoid
+```
+
+### Task Effectiveness Prerequisites
+
+```bash
+# Docker (required for SWE-bench and Terminal-Bench)
+# See: https://docs.docker.com/get-docker/
+
+# Python 3.10+ with venv
+sudo apt install python3-venv
+
+# Harnesses are auto-installed on first run
+# Disk space: ~50GB for SWE-bench, ~20GB for Terminal-Bench
 ```
 
 ## Quick Start
