@@ -62,8 +62,6 @@ run_polyglot() {
         export ANTHROPIC_BASE_URL="$API_BASE_URL"
         export ANTHROPIC_API_KEY="$API_KEY"
 
-        IFS=',' read -ra LANG_LIST <<< "$LANGUAGES"
-
         python3 -c "
 import json, subprocess, os, sys, glob
 

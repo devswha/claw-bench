@@ -83,11 +83,11 @@ for i, item in enumerate(ds):
         # Full clone + checkout base commit
         subprocess.run(
             ['git', 'clone', f'https://github.com/{repo}.git', work_dir],
-            capture_output=True, text=True, timeout=300
+            capture_output=True, text=True, timeout=300, check=True
         )
         subprocess.run(
             ['git', 'checkout', base_commit],
-            capture_output=True, text=True, cwd=work_dir, timeout=30
+            capture_output=True, text=True, cwd=work_dir, timeout=30, check=True
         )
 
         # Run Claw inside the repo directory — it edits files directly
