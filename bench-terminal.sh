@@ -16,12 +16,10 @@ echo ""
 command -v docker &>/dev/null || { echo "docker required: https://docs.docker.com/get-docker/"; exit 1; }
 command -v python3 &>/dev/null || { echo "python3 required"; exit 1; }
 
-for bin in "$CLAW_BIN" "$CLAUDE_BIN"; do
-    if [ ! -x "$bin" ]; then
-        echo "ERROR: Binary not found or not executable: $bin" >&2
-        exit 1
-    fi
-done
+if [ ! -x "$CLAW_BIN" ]; then
+    echo "ERROR: Binary not found or not executable: $CLAW_BIN" >&2
+    exit 1
+fi
 
 if [ "${API_KEY:-REPLACE_ME_WITH_YOUR_API_KEY}" = "REPLACE_ME_WITH_YOUR_API_KEY" ]; then
     echo "ERROR: Set API_KEY in env.sh (required for Terminal-Bench)" >&2
@@ -64,8 +62,18 @@ run_tb2() {
         python3 -c "
 import json, subprocess, os, sys
 
-# Load task list
-tasks_dir = 'tasks'
+# Load task list — find the task directory with fallback candidates
+tasks_dir = None
+for candidate in ['tasks', 'benchmarks', 'data']:
+    if os.path.isdir(candidate):
+        tasks_dir = candidate
+        break
+if tasks_dir is None:
+    # List repo root to help diagnose
+    top_level = sorted(os.listdir('.'))
+    print(f'ERROR: could not find task directory. Repo root contains: {top_level}', file=sys.stderr)
+    sys.exit(1)
+
 task_files = sorted([f for f in os.listdir(tasks_dir) if f.endswith('.json')])
 max_tasks = int('${TB2_TASKS:-89}')
 max_turns = int('${TB2_MAX_TURNS:-100}')
@@ -85,7 +93,7 @@ for i, tf in enumerate(task_files[:max_tasks]):
 
     try:
         result = subprocess.run(
-            ['$bin', '-p', f'Complete this terminal task:\n\n{instruction}\n\nYou have access to a terminal. Execute commands to complete the task.', '--max-turns', str(max_turns)],
+            ['$bin', '--dangerously-skip-permissions', '-p', f'Complete this terminal task:\n\n{instruction}\n\nYou have access to a terminal. Execute commands to complete the task.', '--max-turns', str(max_turns)],
             capture_output=True, text=True, timeout=600,
             env={**dict(os.environ)}
         )
@@ -123,7 +131,6 @@ print(f'Results saved: {len(results)} tasks')
 
 # --- Run benchmarks ---
 run_tb2 "Claw" "$CLAW_BIN"
-run_tb2 "Claude" "$CLAUDE_BIN"
 
 # --- Report ---
 echo "=== Terminal-Bench 2.0 Results ==="
@@ -132,15 +139,15 @@ echo ""
 python3 -c "
 import json
 
-for label in ['Claw', 'Claude']:
-    results_file = '$RESULTS_DIR/' + label.lower() + '/results.jsonl'
-    try:
-        with open(results_file) as f:
-            results = [json.loads(line) for line in f]
-    except FileNotFoundError:
-        print(f'{label:12s} No results found')
-        continue
+results_file = '$RESULTS_DIR/claw/results.jsonl'
+try:
+    with open(results_file) as f:
+        results = [json.loads(line) for line in f]
+except FileNotFoundError:
+    print('Claw        No results found')
+    results = []
 
+if results:
     total = len(results)
     passed = sum(1 for r in results if r.get('exit_code', -1) == 0)
     pct = (passed / total * 100) if total > 0 else 0
@@ -153,13 +160,15 @@ for label in ['Claw', 'Claude']:
         if r.get('exit_code', -1) == 0:
             by_diff[d]['passed'] += 1
 
-    print(f'{label:12s} {passed}/{total} passed  ({pct:.1f}%)')
+    print(f'Claw         {passed}/{total} passed  ({pct:.1f}%)')
     for d in ['easy', 'medium', 'hard']:
         if d in by_diff:
             dp = by_diff[d]['passed']
             dt = by_diff[d]['total']
             print(f'  {d:10s} {dp}/{dt}')
+    print()
 
+print('Claude       ~65.4% (published score — not run here)')
 print()
 "
 
