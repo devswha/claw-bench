@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Benchmark: Peak memory usage (RSS)
+# Benchmark: Idle memory usage (RSS)
 set -euo pipefail
 source "$(dirname "$0")/env.sh"
 
@@ -10,7 +10,7 @@ if [ -n "${CODEX_BIN:-}" ] && [ -x "${CODEX_BIN:-}" ]; then
     has_codex=true
 fi
 
-echo "=== Peak Memory Benchmark ==="
+echo "=== Idle Memory Benchmark ==="
 echo ""
 
 for bin in "$CLAW_BIN" "$CLAUDE_BIN"; do
@@ -52,17 +52,4 @@ measure_rss "Claw" "$CLAW_BIN" --version
 measure_rss "Claude" "$CLAUDE_BIN" --version
 if [ "$has_codex" = true ]; then
     measure_rss "Codex" "$CODEX_BIN" --version
-fi
-
-echo ""
-echo "--- Single prompt (API call) ---"
-(
-    export ANTHROPIC_BASE_URL="$API_BASE_URL"
-    export ANTHROPIC_API_KEY="$API_KEY"
-    measure_rss "Claw" timeout "${API_CALL_TIMEOUT:-45}" "$CLAW_BIN" -p 'say hi' --max-turns 1
-    measure_rss "Claude" timeout "${API_CALL_TIMEOUT:-45}" "$CLAUDE_BIN" -p 'say hi' --max-turns 1
-)
-
-if [ "$has_codex" = true ]; then
-    measure_rss "Codex" timeout "${API_CALL_TIMEOUT:-45}" "$CODEX_BIN" -a never exec -s workspace-write -m "${CODEX_MODEL:-gpt-5.3-codex}" -o /dev/null 'say hi'
 fi

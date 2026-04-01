@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Run all benchmarks
+# Run the stable runtime benchmark core
 set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
-run_required_benchmark() {
+run_benchmark() {
     local script="$1"
 
     "$DIR/$script"
@@ -14,47 +14,29 @@ run_required_benchmark() {
     echo ""
 }
 
-run_optional_benchmark() {
-    local script="$1"
-
-    if "$DIR/$script"; then
-        :
-    else
-        local rc=$?
-        echo "[WARN] $script failed or skipped (exit $rc)"
-    fi
-
-    echo ""
-    echo "----------------------------------------"
-    echo ""
-}
-
 echo "========================================"
-echo "  Claw Code vs Claude Code Benchmark"
+echo "  Claw Code Stable Runtime Benchmarks"
 echo "  $(date '+%Y-%m-%d %H:%M:%S')"
 echo "========================================"
+echo ""
+echo "Default suite:"
+echo "  - startup"
+echo "  - install size"
+echo "  - idle memory"
+echo ""
+echo "Experimental scripts remain available for manual runs:"
+echo "  bench-ttft.sh bench-session.sh bench-syscall.sh bench-cpu.sh"
+echo "  bench-io.sh bench-threads.sh bench-gc.sh"
 echo ""
 
 for script in \
     bench-startup.sh \
     bench-size.sh \
-    bench-memory.sh \
-    bench-ttft.sh \
-    bench-session.sh
+    bench-memory.sh
 do
-    run_required_benchmark "$script"
-done
-
-for script in \
-    bench-syscall.sh \
-    bench-cpu.sh \
-    bench-io.sh \
-    bench-threads.sh \
-    bench-gc.sh
-do
-    run_optional_benchmark "$script"
+    run_benchmark "$script"
 done
 
 echo "========================================"
-echo "  Benchmark complete"
+echo "  Stable benchmark complete"
 echo "========================================"
