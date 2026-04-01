@@ -19,12 +19,10 @@ echo ""
 command -v python3 &>/dev/null || { echo "python3 required"; exit 1; }
 command -v git &>/dev/null || { echo "git required"; exit 1; }
 
-for bin in "$CLAW_BIN" "$CLAUDE_BIN"; do
-    if [ ! -x "$bin" ]; then
-        echo "ERROR: Binary not found or not executable: $bin" >&2
-        exit 1
-    fi
-done
+if [ ! -x "$CLAW_BIN" ]; then
+    echo "ERROR: Binary not found or not executable: $CLAW_BIN" >&2
+    exit 1
+fi
 
 if [ "${API_KEY:-REPLACE_ME_WITH_YOUR_API_KEY}" = "REPLACE_ME_WITH_YOUR_API_KEY" ]; then
     echo "ERROR: Set API_KEY in env.sh (required for Polyglot)" >&2
@@ -38,7 +36,9 @@ if [ ! -d "$POLYGLOT_DIR" ]; then
     git clone https://github.com/Aider-AI/polyglot-benchmark.git "$POLYGLOT_DIR"
     python3 -m venv "$POLYGLOT_DIR/venv"
     source "$POLYGLOT_DIR/venv/bin/activate"
-    pip install -r "$POLYGLOT_DIR/requirements.txt" 2>&1 | tail -1
+    if [ -f "$POLYGLOT_DIR/requirements.txt" ]; then
+        pip install -r "$POLYGLOT_DIR/requirements.txt" 2>&1 | tail -1
+    fi
     deactivate
 else
     echo "Polyglot harness found at $POLYGLOT_DIR"
@@ -71,8 +71,24 @@ languages = '${LANGUAGES}'.split(',')
 max_attempts = int('${MAX_ATTEMPTS}')
 results = []
 
+exercises_base = os.path.join('$POLYGLOT_DIR', 'exercises')
+if not os.path.isdir(exercises_base):
+    # Find actual exercise directory
+    candidates = [d for d in os.listdir('$POLYGLOT_DIR') if os.path.isdir(os.path.join('$POLYGLOT_DIR', d)) and not d.startswith('.') and d not in ('venv',)]
+    print(f'  No exercises/ dir found. Repo contents: {candidates}')
+    exercises_base = None
+    for c in candidates:
+        sub = os.path.join('$POLYGLOT_DIR', c)
+        if any(os.path.isdir(os.path.join(sub, lang)) for lang in languages):
+            exercises_base = sub
+            print(f'  Using {c}/ as exercise root')
+            break
+
 for lang in languages:
-    problems_dir = os.path.join('$POLYGLOT_DIR', 'exercises', lang)
+    if exercises_base is None:
+        print(f'  Skipping {lang}: could not find exercise directory')
+        continue
+    problems_dir = os.path.join(exercises_base, lang)
     if not os.path.isdir(problems_dir):
         print(f'  Skipping {lang}: no exercises found')
         continue
@@ -101,12 +117,12 @@ for lang in languages:
         for attempt in range(1, max_attempts + 1):
             prompt = f'Solve this {lang} exercise:\n\n{description}\n\nFiles in directory: {stub_files}\nAttempt {attempt}/{max_attempts}'
 
-            if attempt > 1 and 'last_error' in dir():
+            if attempt > 1 and 'last_error' in locals():
                 prompt += f'\n\nPrevious attempt failed with:\n{last_error}'
 
             try:
                 result = subprocess.run(
-                    ['$bin', '-p', prompt, '--max-turns', '5'],
+                    ['$bin', '--dangerously-skip-permissions', '-p', prompt, '--max-turns', '5'],
                     capture_output=True, text=True, timeout=120,
                     cwd=prob_dir,
                     env={**dict(os.environ)}
@@ -179,7 +195,6 @@ for lang, v in sorted(by_lang.items()):
 
 # --- Run benchmarks ---
 run_polyglot "Claw" "$CLAW_BIN"
-run_polyglot "Claude" "$CLAUDE_BIN"
 
 # --- Final Report ---
 echo "=== Aider Polyglot Results ==="
@@ -188,31 +203,30 @@ echo ""
 python3 -c "
 import json
 
-for label in ['Claw', 'Claude']:
-    results_file = '$RESULTS_DIR/' + label.lower() + '/results.jsonl'
-    try:
-        with open(results_file) as f:
-            results = [json.loads(line) for line in f]
-    except FileNotFoundError:
-        print(f'{label:12s} No results found')
-        continue
+results_file = '$RESULTS_DIR/claw/results.jsonl'
+try:
+    with open(results_file) as f:
+        results = [json.loads(line) for line in f]
+except FileNotFoundError:
+    print('Claw        No results found')
+    exit()
 
-    total = len(results)
-    passed = sum(1 for r in results if r.get('passed', False))
-    pct = (passed / total * 100) if total > 0 else 0
+total = len(results)
+passed = sum(1 for r in results if r.get('passed', False))
+pct = (passed / total * 100) if total > 0 else 0
 
-    by_lang = {}
-    for r in results:
-        lang = r.get('language', 'unknown')
-        by_lang.setdefault(lang, {'total': 0, 'passed': 0})
-        by_lang[lang]['total'] += 1
-        if r.get('passed', False):
-            by_lang[lang]['passed'] += 1
+by_lang = {}
+for r in results:
+    lang = r.get('language', 'unknown')
+    by_lang.setdefault(lang, {'total': 0, 'passed': 0})
+    by_lang[lang]['total'] += 1
+    if r.get('passed', False):
+        by_lang[lang]['passed'] += 1
 
-    print(f'{label:12s} {passed}/{total} passed  ({pct:.1f}%)')
-    for lang in sorted(by_lang):
-        v = by_lang[lang]
-        print(f'  {lang:12s} {v[\"passed\"]}/{v[\"total\"]}')
+print(f'Claw         {passed}/{total} passed  ({pct:.1f}%)')
+for lang in sorted(by_lang):
+    v = by_lang[lang]
+    print(f'  {lang:12s} {v[\"passed\"]}/{v[\"total\"]}')
 
 print()
 "
