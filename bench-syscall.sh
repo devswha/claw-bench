@@ -7,6 +7,7 @@ echo "=== Syscall Profiling Benchmark ==="
 echo ""
 
 command -v strace &>/dev/null || { echo "strace not found. Install: sudo apt install strace"; exit 1; }
+command -v bc &>/dev/null || { echo "bc required: apt install bc"; exit 1; }
 
 for bin in "$CLAW_BIN" "$CLAUDE_BIN"; do
     if [ ! -x "$bin" ]; then
@@ -51,12 +52,13 @@ claude_count=$(count_syscalls "Claude" "$CLAUDE_BIN" --version)
 
 if [ "$claw_count" -gt 0 ] 2>/dev/null; then
     ratio=$(echo "scale=1; $claude_count / $claw_count" | bc)
+    ratio_fmt="${ratio}x"
 else
-    ratio="N/A"
+    ratio_fmt="N/A"
 fi
 
 printf "%-12s %s syscalls\n" "Claw" "$claw_count"
-printf "%-12s %s syscalls  (%sx)\n" "Claude" "$claude_count" "$ratio"
+printf "%-12s %s syscalls  (%s)\n" "Claude" "$claude_count" "$ratio_fmt"
 echo ""
 
 print_top_syscalls "Claw --version" "$CLAW_BIN" --version
@@ -72,10 +74,11 @@ echo "--- Syscall Count (API call) ---"
 
     if [ "$claw_api" -gt 0 ] 2>/dev/null; then
         ratio_api=$(echo "scale=1; $claude_api / $claw_api" | bc)
+        ratio_api_fmt="${ratio_api}x"
     else
-        ratio_api="N/A"
+        ratio_api_fmt="N/A"
     fi
 
     printf "%-12s %s syscalls\n" "Claw" "$claw_api"
-    printf "%-12s %s syscalls  (%sx)\n" "Claude" "$claude_api" "$ratio_api"
+    printf "%-12s %s syscalls  (%s)\n" "Claude" "$claude_api" "$ratio_api_fmt"
 )
