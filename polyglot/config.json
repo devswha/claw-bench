@@ -1,0 +1,15 @@
+{
+  "benchmark": "aider-polyglot",
+  "source": "https://github.com/Aider-AI/polyglot-benchmark",
+  "languages": ["python", "javascript", "go", "rust", "java", "cpp"],
+  "total_problems": 225,
+  "max_attempts": 2,
+  "agents": {
+    "claw": {
+      "command": "$CLAW_BIN"
+    },
+    "claude": {
+      "command": "$CLAUDE_BIN"
+    }
+  }
+}
