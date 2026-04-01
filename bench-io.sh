@@ -20,13 +20,18 @@ if [ "${STRACE_FOLLOW_FORKS:-true}" = "true" ]; then
     FORK_FLAG="-f"
 fi
 
-count_io() {
-    local label="$1"
-    local syscall="$2"
-    shift 2
-    local count
-    count=$(strace -e trace="$syscall" $FORK_FLAG "$@" 2>&1 1>/dev/null | grep -c "^$syscall(" || echo "0")
-    echo "$count"
+# Run strace -c once and parse the summary table for openat, read, write counts.
+# Returns three space-separated values: openat_count read_count write_count
+get_io_counts() {
+    local summary
+    summary=$(strace -c $FORK_FLAG -e trace=openat,read,write "$@" 2>&1 1>/dev/null)
+
+    local openat_count read_count write_count
+    openat_count=$(echo "$summary" | awk '$NF == "openat" {print $4}')
+    read_count=$(echo "$summary"   | awk '$NF == "read"   {print $4}')
+    write_count=$(echo "$summary"  | awk '$NF == "write"  {print $4}')
+
+    echo "${openat_count:-0} ${read_count:-0} ${write_count:-0}"
 }
 
 print_io_table() {
@@ -34,41 +39,41 @@ print_io_table() {
     shift
 
     echo "--- File I/O ($scenario) ---"
-    printf "%-12s %-10s %-10s %-10s\n" "" "open()" "read()" "write()"
-    printf "%-12s %-10s %-10s %-10s\n" "" "------" "------" "-------"
+    printf "%-12s %-10s %-10s %-10s\n" "" "openat()" "read()" "write()"
+    printf "%-12s %-10s %-10s %-10s\n" "" "-------" "------" "-------"
+
+    local claw_counts claude_counts
+    claw_counts=$(get_io_counts "$CLAW_BIN" "$@")
+    claude_counts=$(get_io_counts "$CLAUDE_BIN" "$@")
 
     local claw_open claw_read claw_write
-    claw_open=$(count_io "Claw" "openat" "$CLAW_BIN" "$@")
-    claw_read=$(count_io "Claw" "read" "$CLAW_BIN" "$@")
-    claw_write=$(count_io "Claw" "write" "$CLAW_BIN" "$@")
+    read -r claw_open claw_read claw_write <<< "$claw_counts"
 
     local claude_open claude_read claude_write
-    claude_open=$(count_io "Claude" "openat" "$CLAUDE_BIN" "$@")
-    claude_read=$(count_io "Claude" "read" "$CLAUDE_BIN" "$@")
-    claude_write=$(count_io "Claude" "write" "$CLAUDE_BIN" "$@")
+    read -r claude_open claude_read claude_write <<< "$claude_counts"
 
     printf "%-12s %-10s %-10s %-10s\n" "Claw" "$claw_open" "$claw_read" "$claw_write"
     printf "%-12s %-10s %-10s %-10s\n" "Claude" "$claude_open" "$claude_read" "$claude_write"
 
     # Ratios
     local ratio_open ratio_read ratio_write
-    if [ "$claw_open" -gt 0 ] 2>/dev/null; then
-        ratio_open=$(echo "scale=1; $claude_open / $claw_open" | bc)
+    if [ "${claw_open:-0}" -gt 0 ] 2>/dev/null; then
+        ratio_open=$(echo "scale=1; $claude_open / $claw_open" | bc)x
     else
         ratio_open="N/A"
     fi
-    if [ "$claw_read" -gt 0 ] 2>/dev/null; then
-        ratio_read=$(echo "scale=1; $claude_read / $claw_read" | bc)
+    if [ "${claw_read:-0}" -gt 0 ] 2>/dev/null; then
+        ratio_read=$(echo "scale=1; $claude_read / $claw_read" | bc)x
     else
         ratio_read="N/A"
     fi
-    if [ "$claw_write" -gt 0 ] 2>/dev/null; then
-        ratio_write=$(echo "scale=1; $claude_write / $claw_write" | bc)
+    if [ "${claw_write:-0}" -gt 0 ] 2>/dev/null; then
+        ratio_write=$(echo "scale=1; $claude_write / $claw_write" | bc)x
     else
         ratio_write="N/A"
     fi
 
-    printf "%-12s %-10s %-10s %-10s\n" "Ratio" "${ratio_open}x" "${ratio_read}x" "${ratio_write}x"
+    printf "%-12s %-10s %-10s %-10s\n" "Ratio" "$ratio_open" "$ratio_read" "$ratio_write"
     echo ""
 }
 
