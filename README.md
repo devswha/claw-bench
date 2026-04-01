@@ -46,7 +46,16 @@ These benchmarks measure whether the CLI tools can successfully complete real-wo
 | [Terminal-Bench 2.0](https://tbench.ai/) | 89 | Terminal-native task completion | Laude Institute |
 | [Aider Polyglot](https://aider.chat/2024/12/21/polyglot.html) | 225 | Multi-language code editing | Aider-AI |
 
-> Run individually: `./bench-swebench.sh`, `./bench-terminal.sh`, `./bench-polyglot.sh`
+**SWE-bench Sample Results** (3 tasks: flask, requests):
+
+| Task | Claw (Rust) | Claude Code (ref) |
+|------|-------------|-------------------|
+| pallets/flask-5014 | **Resolved** | ~79.6% overall (Anthropic published) |
+| psf/requests-1142 | **Resolved** | |
+| psf/requests-1724 | **Resolved** | |
+| **Sample score** | **3/3 (100%)** | |
+
+> Full 500-task run pending. Run: `SWEBENCH_TASKS=500 ./bench-swebench.sh`
 > These are NOT included in `bench-all.sh` due to long runtime and API cost.
 
 ## Benchmarks

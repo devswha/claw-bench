@@ -13,6 +13,10 @@ polyglot/results/
 .venv/
 venv/
 
+# SWE-bench report JSONs (generated in project root)
+Claw.*.json
+Claude.*.json
+
 # Auto-installed benchmark harnesses
 .swebench-harness/
 .terminal-bench-harness/
