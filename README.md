@@ -12,7 +12,9 @@ Measured on Ubuntu 24.04 (Linux 6.8), same machine, same API endpoint.
 |-----------|-------------|-------------------|-------|
 | Startup time | **1.3 ms** | 120.4 ms | 91x faster |
 | Binary size | **13 MB** | 218 MB | 17x smaller |
-| Memory (idle) | **4.0 MB** | 191.7 MB | 48x less |
+| Memory (idle) | **4.0 MB** | 191.3 MB | 48x less |
+| Memory (API call) | **9.6 MB** | 322.3 MB | 34x less |
+| Response time (TTFT) | **2.3 s** | 14.2 s | 6.3x faster |
 
 > Results vary by machine, network, and API provider. Run your own benchmarks.
 
@@ -24,10 +26,12 @@ Measured on Ubuntu 24.04 (Linux 6.8), same machine, same API endpoint.
 | CPU cycles | **4.7M** | 387.9M | 83x fewer |
 | CPU instructions | **3.0M** | 423.6M | 139x fewer |
 | Cache misses | **54,684** | 2,512,171 | 45.9x fewer |
-| Page faults | **228** | 20,149 | 88x fewer |
+| Page faults (--version) | **228** | 20,149 | 88x fewer |
+| Page faults (API call) | **1,372** | 321,047 | 234x fewer |
 | File opens | **5** | 19 | 3.8x fewer |
 | File reads | **7** | 31 | 4.4x fewer |
-| Threads (API call) | — | 19 | — |
+| Threads (API call) | **14** | 18 | 1.3x fewer |
+| RSS growth (API call) | **5.6 MB** | 321.7 MB | 57x less |
 
 > These numbers explain *why* the performance gap exists — not just *that* it exists.
 > CPU and page fault benchmarks require `perf_event_paranoid ≤ 2`. See Prerequisites.
