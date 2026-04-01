@@ -15,3 +15,8 @@ HYPERFINE_WARMUP=3
 HYPERFINE_RUNS=10
 SESSION_DURATION=60        # seconds for long session benchmark
 SESSION_POLL_INTERVAL=1    # pidstat interval
+
+# Runtime overhead benchmark settings
+STRACE_FOLLOW_FORKS=true                  # trace child processes (-f flag)
+PERF_EVENTS="cycles,instructions,cache-misses,cache-references,branch-misses,page-faults"
+GC_POLL_INTERVAL=0.1                      # seconds between /proc RSS samples
