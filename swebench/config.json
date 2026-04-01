@@ -1,0 +1,29 @@
+{
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "split": "test",
+  "max_tasks": 500,
+  "timeout_per_task": 300,
+  "docker_image_prefix": "swebench",
+  "output_format": "jsonl",
+  "evaluation": {
+    "run_tests": true,
+    "fail_to_pass": true,
+    "pass_to_pass": true
+  },
+  "agents": {
+    "claw": {
+      "command": "$CLAW_BIN -p '{issue_text}' --max-turns 10",
+      "env": {
+        "ANTHROPIC_API_KEY": "$API_KEY",
+        "ANTHROPIC_BASE_URL": "$API_BASE_URL"
+      }
+    },
+    "claude": {
+      "command": "$CLAUDE_BIN -p '{issue_text}' --max-turns 10",
+      "env": {
+        "ANTHROPIC_API_KEY": "$API_KEY",
+        "ANTHROPIC_BASE_URL": "$API_BASE_URL"
+      }
+    }
+  }
+}
