@@ -22,13 +22,17 @@ Measured on Ubuntu 24.04 (Linux 6.8), same machine, same API endpoint.
 
 | Benchmark | Claw (Rust) | Claude (Node.js) | Ratio |
 |-----------|-------------|-------------------|-------|
-| Syscalls (--version) | **45** | 4,312 | 96x fewer |
-| CPU instructions | **1.2M** | 89M | 74x fewer |
-| File opens | **12** | 847 | 71x fewer |
-| Threads (API call) | **2** | 11 | 5.5x fewer |
-| Page faults | **312** | 8,941 | 29x fewer |
+| Syscalls (--version) | **78** | 731 | 9.3x fewer |
+| File opens (--version) | **5** | 19 | 3.8x fewer |
+| File reads (--version) | **7** | 31 | 4.4x fewer |
+| File opens (API call) | **181** | 55,592 | 307x fewer |
+| File reads (API call) | **131** | 35,359 | 270x fewer |
+| Threads (API call) | — | 18 | — |
+| CPU instructions | — | — | *requires `perf` access* |
+| Page faults | — | — | *requires `perf` access* |
 
 > These numbers explain *why* the performance gap exists — not just *that* it exists.
+> CPU and page fault benchmarks require `perf_event_paranoid ≤ 2`. See Prerequisites.
 
 ## Benchmarks
 
