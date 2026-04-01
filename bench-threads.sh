@@ -27,7 +27,7 @@ count_threads() {
 
     local threads=0
     if kill -0 "$pid" 2>/dev/null; then
-        threads=$(ls "/proc/$pid/task" 2>/dev/null | wc -l)
+        threads=$(ls "/proc/$pid/task" 2>/dev/null | wc -l || echo "0")
     fi
 
     # Clean up
@@ -46,15 +46,24 @@ echo "--- Thread Count (API call) ---"
     export ANTHROPIC_BASE_URL="$API_BASE_URL"
     export ANTHROPIC_API_KEY="$API_KEY"
 
+    claw_pid=""
+    claude_pid=""
+    cleanup() {
+        kill "$claw_pid" "$claude_pid" 2>/dev/null || true
+        wait "$claw_pid" "$claude_pid" 2>/dev/null || true
+    }
+    trap cleanup EXIT INT TERM
+
     # Start processes and measure threads while alive
     "$CLAW_BIN" -p 'Write a short paragraph about benchmarking' --max-turns 1 >/dev/null 2>&1 &
     claw_pid=$!
-    sleep 1
+    sleep 2
 
     claw_threads=0
+    claw_lwp="N/A"
     if kill -0 "$claw_pid" 2>/dev/null; then
-        claw_threads=$(ls "/proc/$claw_pid/task" 2>/dev/null | wc -l)
-        claw_lwp=$(ps --no-headers -o nlwp -p "$claw_pid" 2>/dev/null | tr -d ' ')
+        claw_threads=$(ls "/proc/$claw_pid/task" 2>/dev/null | wc -l || echo "0")
+        claw_lwp=$(ps --no-headers -o nlwp -p "$claw_pid" 2>/dev/null | tr -d ' ' || echo "N/A")
     fi
     wait "$claw_pid" 2>/dev/null || true
 
@@ -63,18 +72,27 @@ echo "--- Thread Count (API call) ---"
     sleep 2
 
     claude_threads=0
+    claude_lwp="N/A"
     if kill -0 "$claude_pid" 2>/dev/null; then
-        claude_threads=$(ls "/proc/$claude_pid/task" 2>/dev/null | wc -l)
-        claude_lwp=$(ps --no-headers -o nlwp -p "$claude_pid" 2>/dev/null | tr -d ' ')
+        claude_threads=$(ls "/proc/$claude_pid/task" 2>/dev/null | wc -l || echo "0")
+        claude_lwp=$(ps --no-headers -o nlwp -p "$claude_pid" 2>/dev/null | tr -d ' ' || echo "N/A")
     fi
     wait "$claude_pid" 2>/dev/null || true
 
     if [ "$claw_threads" -gt 0 ] 2>/dev/null; then
         ratio=$(echo "scale=1; $claude_threads / $claw_threads" | bc)
+        ratio="${ratio}x"
     else
         ratio="N/A"
     fi
 
-    printf "%-12s %-10s %-10s %s\n" "Threads" "$claw_threads" "$claude_threads" "${ratio}x"
-    printf "%-12s %-10s %-10s\n" "LWP" "${claw_lwp:-N/A}" "${claude_lwp:-N/A}"
+    if [ "$claw_lwp" != "N/A" ] && [ "$claude_lwp" != "N/A" ] && [ "$claw_lwp" -gt 0 ] 2>/dev/null; then
+        lwp_ratio=$(echo "scale=1; $claude_lwp / $claw_lwp" | bc)
+        lwp_ratio="${lwp_ratio}x"
+    else
+        lwp_ratio="N/A"
+    fi
+
+    printf "%-12s %-10s %-10s %s\n" "Threads" "$claw_threads" "$claude_threads" "$ratio"
+    printf "%-12s %-10s %-10s %s\n" "LWP" "$claw_lwp" "$claude_lwp" "$lwp_ratio"
 )
