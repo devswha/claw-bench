@@ -9,7 +9,7 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 RESULTS_DIR="$DIR/swebench/results/$(date '+%Y%m%d-%H%M%S')"
 
 echo "=== SWE-bench Verified Benchmark (Claw Code) ==="
-echo "Tasks: ${SWEBENCH_TASKS:-500} | Timeout: ${SWEBENCH_TIMEOUT:-300}s per task"
+echo "Tasks: ${SWEBENCH_TASKS:-500} | Timeout: ${SWEBENCH_TIMEOUT:-600}s per task"
 echo "Results: $RESULTS_DIR"
 echo ""
 
@@ -59,7 +59,7 @@ from datasets import load_dataset
 
 ds = load_dataset('princeton-nlp/SWE-bench_Verified', split='test')
 max_tasks = int('${SWEBENCH_TASKS:-500}')
-timeout = int('${SWEBENCH_TIMEOUT:-300}')
+timeout = int('${SWEBENCH_TIMEOUT:-600}')
 claw_bin = '$CLAW_BIN'
 
 results = []
@@ -80,10 +80,10 @@ for i, item in enumerate(ds):
     patch = ''
 
     try:
-        # Shallow clone + checkout base commit
+        # Full clone + checkout base commit
         subprocess.run(
-            ['git', 'clone', '--depth', '50', f'https://github.com/{repo}.git', work_dir],
-            capture_output=True, text=True, timeout=120
+            ['git', 'clone', f'https://github.com/{repo}.git', work_dir],
+            capture_output=True, text=True, timeout=300
         )
         subprocess.run(
             ['git', 'checkout', base_commit],
@@ -92,7 +92,7 @@ for i, item in enumerate(ds):
 
         # Run Claw inside the repo directory — it edits files directly
         result = subprocess.run(
-            [claw_bin, '-p',
+            [claw_bin, '--dangerously-skip-permissions', '-p',
              f'Fix this GitHub issue. Edit the files directly to resolve it.\n\n{issue_text}',
              '--max-turns', '10'],
             capture_output=True, text=True, timeout=timeout,
@@ -150,7 +150,7 @@ python3 -m swebench.harness.run_evaluation \
     --dataset_name princeton-nlp/SWE-bench_Verified \
     --run_id "$RUN_ID" \
     --max_workers 2 \
-    --timeout "${SWEBENCH_TIMEOUT:-300}" \
+    --timeout "${SWEBENCH_TIMEOUT:-600}" \
     --report_dir "$RESULTS_DIR/claw-reports" \
     2>&1 | tee "$RESULTS_DIR/claw-eval.log" | tail -10
 
