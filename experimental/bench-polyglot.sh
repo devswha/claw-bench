@@ -2,9 +2,11 @@
 # Benchmark: Aider Polyglot — Claw-first multi-language code editing + self-repair
 # WARNING: This benchmark takes hours to run and costs API tokens
 set -euo pipefail
-source "$(dirname "$0")/env.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+source "$ROOT_DIR/env.sh"
 
-DIR="$(cd "$(dirname "$0")" && pwd)"
+DIR="$ROOT_DIR"
 RESULTS_DIR="$DIR/polyglot/results/$(date '+%Y%m%d-%H%M%S')"
 
 LANGUAGES="${POLYGLOT_LANGUAGES:-python,javascript,go,rust,java,cpp}"

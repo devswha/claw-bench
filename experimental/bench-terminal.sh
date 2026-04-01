@@ -2,9 +2,11 @@
 # Benchmark: Terminal-Bench 2.0 — Claw-first terminal-native task completion
 # WARNING: This benchmark takes hours to run and requires Docker
 set -euo pipefail
-source "$(dirname "$0")/env.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+source "$ROOT_DIR/env.sh"
 
-DIR="$(cd "$(dirname "$0")" && pwd)"
+DIR="$ROOT_DIR"
 RESULTS_DIR="$DIR/terminal-bench/results/$(date '+%Y%m%d-%H%M%S')"
 
 echo "=== Terminal-Bench 2.0 Benchmark ==="

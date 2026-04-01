@@ -3,9 +3,11 @@
 # Claude Code scores are referenced from Anthropic's published results.
 # WARNING: This benchmark takes hours to run. Requires Docker for evaluation.
 set -euo pipefail
-source "$(dirname "$0")/env.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+source "$ROOT_DIR/env.sh"
 
-DIR="$(cd "$(dirname "$0")" && pwd)"
+DIR="$ROOT_DIR"
 RESULTS_DIR="$DIR/swebench/results/$(date '+%Y%m%d-%H%M%S')"
 
 echo "=== SWE-bench Verified Benchmark (Claw Code) ==="

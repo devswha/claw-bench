@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Benchmark: File I/O overhead (openat, read, write counts)
 set -euo pipefail
-source "$(dirname "$0")/env.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+source "$ROOT_DIR/env.sh"
 
 echo "=== File I/O Overhead Benchmark ==="
 echo ""

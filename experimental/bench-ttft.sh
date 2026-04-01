@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Benchmark: Time to first token (TTFT)
 set -euo pipefail
-source "$(dirname "$0")/env.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+source "$ROOT_DIR/env.sh"
 
 command -v bc &>/dev/null || { echo "bc required: sudo apt install bc"; exit 1; }
 

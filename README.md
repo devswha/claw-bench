@@ -43,16 +43,16 @@ Codex is currently treated as a **runtime-only comparison target** in this repo:
 
 These scripts are still in the repo, but are **not** part of the default suite because they are much more environment-sensitive:
 
-- `bench-ttft.sh`
-- `bench-session.sh`
-- `bench-syscall.sh`
-- `bench-cpu.sh`
-- `bench-io.sh`
-- `bench-threads.sh`
-- `bench-gc.sh`
-- `bench-swebench.sh`
-- `bench-terminal.sh`
-- `bench-polyglot.sh`
+- `experimental/bench-ttft.sh`
+- `experimental/bench-session.sh`
+- `experimental/bench-syscall.sh`
+- `experimental/bench-cpu.sh`
+- `experimental/bench-io.sh`
+- `experimental/bench-threads.sh`
+- `experimental/bench-gc.sh`
+- `experimental/bench-swebench.sh`
+- `experimental/bench-terminal.sh`
+- `experimental/bench-polyglot.sh`
 
 Use them manually only if you are comfortable with:
 - API/provider variability
@@ -68,16 +68,16 @@ Use them manually only if you are comfortable with:
 | `bench-memory.sh` | Idle RSS memory | `/usr/bin/time -v` |
 | `bench-size.sh` | Binary and install size | `du` |
 | `bench-all.sh` | Stable runtime suite | — |
-| `bench-ttft.sh` | Time to first response | `date +%s%N` |
-| `bench-session.sh` | Memory over long session | `ps` polling |
-| `bench-syscall.sh` | Syscall count and breakdown | `strace -c` |
-| `bench-cpu.sh` | CPU cycles, IPC, cache misses | `perf stat` |
-| `bench-io.sh` | File open/read/write counts | `strace -e trace=` |
-| `bench-threads.sh` | Thread/process footprint | `/proc/pid/task` |
-| `bench-gc.sh` | Page faults, RSS growth | `perf stat` + `/proc` |
-| `bench-swebench.sh` | SWE-bench Verified score | Docker + Python |
-| `bench-terminal.sh` | Terminal-Bench 2.0 score | Docker + Harbor |
-| `bench-polyglot.sh` | Aider Polyglot score | Python + git |
+| `experimental/bench-ttft.sh` | Time to first response | `date +%s%N` |
+| `experimental/bench-session.sh` | Memory over long session | `ps` polling |
+| `experimental/bench-syscall.sh` | Syscall count and breakdown | `strace -c` |
+| `experimental/bench-cpu.sh` | CPU cycles, IPC, cache misses | `perf stat` |
+| `experimental/bench-io.sh` | File open/read/write counts | `strace -e trace=` |
+| `experimental/bench-threads.sh` | Thread/process footprint | `/proc/pid/task` |
+| `experimental/bench-gc.sh` | Page faults, RSS growth | `perf stat` + `/proc` |
+| `experimental/bench-swebench.sh` | SWE-bench Verified score | Docker + Python |
+| `experimental/bench-terminal.sh` | Terminal-Bench 2.0 score | Docker + Harbor |
+| `experimental/bench-polyglot.sh` | Aider Polyglot score | Python + git |
 
 ## Prerequisites
 

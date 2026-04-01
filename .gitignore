@@ -3,6 +3,8 @@ env.sh
 /tmp/
 .omc/
 .claude/
+.omx/
+logs/
 
 # Task effectiveness benchmark results (large JSON files)
 swebench/results/

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Benchmark: CPU hardware counters (perf stat)
 set -euo pipefail
-source "$(dirname "$0")/env.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+source "$ROOT_DIR/env.sh"
 
 echo "=== CPU Hardware Counters Benchmark ==="
 echo ""
