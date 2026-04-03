@@ -1,8 +1,26 @@
+<div align="center">
+
 # claw-bench
 
-Minimal benchmark suite comparing **Claw Code** (Rust single-binary CLI) vs **Claude Code** (Node.js CLI), with **optional Codex runtime comparison** for the stable local-only benchmarks.
+**Runtime overhead benchmarks for AI coding CLIs — Rust vs Node.js**
 
-Inspired by [claw-code](https://github.com/devswha/claw-code).
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CI](https://github.com/devswha/claw-bench/actions/workflows/benchmark.yml/badge.svg)](https://github.com/devswha/claw-bench/actions/workflows/benchmark.yml)
+[![Benchmark](https://img.shields.io/badge/benchmark-stable_suite-E8590C)](bench-all.sh)
+
+<br/>
+
+<img src="assets/benchmark-chart.svg" alt="Claw Code Performance Benchmarks" width="820"/>
+
+<br/>
+
+> Measured on Ubuntu 24.04 · [Run your own benchmarks](#quick-start) · Inspired by [claw-code](https://github.com/devswha/claw-code)
+
+</div>
+
+---
+
+Minimal benchmark suite comparing **Claw Code** (Rust single-binary CLI) vs **Claude Code** (Node.js CLI), with **optional Codex runtime comparison** for the stable local-only benchmarks.
 
 ## Stable Default Suite
 

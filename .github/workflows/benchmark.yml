@@ -1,0 +1,183 @@
+# claw-bench CI workflow
+#
+# Badges (add to README.md after the repo is public):
+#   ![Benchmark](https://github.com/<owner>/claw-bench/actions/workflows/benchmark.yml/badge.svg)
+#   ![Validate Scripts](https://github.com/<owner>/claw-bench/actions/workflows/benchmark.yml/badge.svg?branch=main)
+#
+# Self-hosted runner note:
+#   Actual benchmark execution requires the Claw and Claude binaries.
+#   To enable full runs, register a self-hosted runner that has both
+#   binaries on PATH and set CLAW_BIN / CLAUDE_BIN in repository secrets,
+#   then change `runs-on: ubuntu-latest` to `runs-on: self-hosted`.
+
+name: Benchmark CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      full_run:
+        description: 'Attempt full benchmark run (requires self-hosted runner with binaries)'
+        required: false
+        default: 'false'
+        type: boolean
+
+  schedule:
+    # Weekly on Monday at 06:00 UTC
+    - cron: '0 6 * * 1'
+
+  push:
+    branches:
+      - main
+    paths:
+      - 'bench-*.sh'
+      - 'bench-all.sh'
+      - 'env.example.sh'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 1: Smoke-test — syntax check every script, validate env template,
+  #         and verify the suite entry-point is parseable.
+  #         This runs without the Claw / Claude binaries.
+  # ─────────────────────────────────────────────────────────────────────────────
+  benchmark:
+    name: Smoke Test & Script Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install benchmark dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y hyperfine bc
+
+      # ── Syntax check: all .sh files at repo root ──────────────────────────
+      - name: Syntax check — stable suite scripts
+        run: |
+          echo "Checking syntax of stable suite scripts..."
+          for f in bench-startup.sh bench-size.sh bench-memory.sh bench-all.sh; do
+            echo -n "  bash -n $f ... "
+            bash -n "$f" && echo "OK" || { echo "FAIL"; exit 1; }
+          done
+
+      - name: Syntax check — env template
+        run: |
+          echo "Checking env.example.sh is parseable..."
+          bash -n env.example.sh && echo "OK"
+
+      - name: Syntax check — experimental scripts
+        run: |
+          echo "Checking experimental scripts..."
+          for f in experimental/bench-*.sh; do
+            echo -n "  bash -n $f ... "
+            bash -n "$f" && echo "OK" || { echo "FAIL"; exit 1; }
+          done
+
+      # ── Validate env.example.sh variables are well-formed ─────────────────
+      - name: Validate env.example.sh structure
+        run: |
+          echo "Validating env.example.sh variable declarations..."
+
+          required_vars=(
+            CLAW_BIN
+            CLAUDE_BIN
+            HYPERFINE_WARMUP
+            HYPERFINE_RUNS
+          )
+
+          # Source with safe overrides so binary-existence checks don't fire
+          set +e
+          env_output=$(bash -c '
+            HOME=/tmp
+            source ./env.example.sh 2>/dev/null
+            echo "CLAW_BIN=${CLAW_BIN}"
+            echo "CLAUDE_BIN=${CLAUDE_BIN}"
+            echo "HYPERFINE_WARMUP=${HYPERFINE_WARMUP}"
+            echo "HYPERFINE_RUNS=${HYPERFINE_RUNS}"
+          ')
+          set -e
+
+          for var in "${required_vars[@]}"; do
+            if echo "$env_output" | grep -q "^${var}="; then
+              echo "  $var: present"
+            else
+              echo "  $var: MISSING — env.example.sh may be broken"
+              exit 1
+            fi
+          done
+          echo "All required variables present."
+
+      # ── Dry-run bench-all.sh (syntax + reachability, no binaries needed) ──
+      - name: Dry-run bench-all.sh structure
+        run: |
+          echo "Verifying bench-all.sh references correct scripts..."
+          for script in bench-startup.sh bench-size.sh bench-memory.sh; do
+            if grep -q "$script" bench-all.sh; then
+              echo "  $script: referenced OK"
+            else
+              echo "  $script: NOT referenced in bench-all.sh — check suite definition"
+              exit 1
+            fi
+          done
+
+      # ── Upload any artifacts that might exist after a real run ─────────────
+      - name: Upload benchmark artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            results/
+            *.md
+            assets/*.svg
+          if-no-files-found: ignore
+          retention-days: 90
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 2: ShellCheck — static analysis on all shell scripts.
+  #         Warnings are allowed; errors cause failure.
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate-scripts:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck on stable suite
+        run: |
+          echo "Running shellcheck (errors only, warnings allowed)..."
+          # SC1091: skip 'source not found' — env.sh is not committed
+          # SC2154: skip unbound vars that come from sourced env.sh
+          shellcheck \
+            --severity=error \
+            --exclude=SC1091,SC2154 \
+            bench-all.sh \
+            bench-startup.sh \
+            bench-size.sh \
+            bench-memory.sh \
+            env.example.sh
+
+      - name: Run shellcheck on experimental scripts
+        run: |
+          echo "Running shellcheck on experimental scripts..."
+          shellcheck \
+            --severity=error \
+            --exclude=SC1091,SC2154 \
+            experimental/bench-*.sh
+        # Don't block on experimental script issues
+        continue-on-error: true
+
+      - name: ShellCheck summary
+        run: |
+          echo ""
+          echo "ShellCheck complete."
+          echo "Stable suite: errors fail the job; warnings are informational."
+          echo "Experimental: errors are reported but do not block merges."

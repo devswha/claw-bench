@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="454" viewBox="0 0 820 454">
+<defs>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
+  </style>
+  <!-- Bar gradients -->
+  <linearGradient id="grad-claw" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#E8590C"/>
+    <stop offset="100%" stop-color="#F97316"/>
+  </linearGradient>
+  <linearGradient id="grad-claude" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#6366F1"/>
+    <stop offset="100%" stop-color="#818CF8"/>
+  </linearGradient>
+  <linearGradient id="grad-codex" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#10B981"/>
+    <stop offset="100%" stop-color="#34D399"/>
+  </linearGradient>
+</defs>
+
+<!-- Background -->
+<rect width="820" height="454" fill="#0F1117" rx="12"/>
+
+<!-- Title -->
+<text x="410" y="32" text-anchor="middle"
+      font-size="17" font-weight="700" fill="#F0F6FC" letter-spacing="0.3">
+  Claw Code — Performance Benchmarks
+</text>
+<text x="410" y="52" text-anchor="middle"
+      font-size="12" fill="#8B949E">
+  Startup time · Binary size · Memory usage  (log scale)
+</text>
+
+<!-- Legend -->
+<rect x="270" y="64" width="12" height="12" rx="3" fill="url(#grad-claw)"/>
+<text x="286" y="74" font-size="11" fill="#8B949E">Claw Code</text>
+<rect x="365" y="64" width="12" height="12" rx="3" fill="url(#grad-claude)"/>
+<text x="381" y="74" font-size="11" fill="#8B949E">Claude Code</text>
+<rect x="460" y="64" width="12" height="12" rx="3" fill="url(#grad-codex)"/>
+<text x="476" y="74" font-size="11" fill="#8B949E">Codex CLI</text>
+
+<text x="24" y="98" font-size="12" font-weight="600" fill="#8B949E" letter-spacing="0.5">CLAW vs CLAUDE CODE</text>
+<rect x="24" y="108" width="772" height="54" fill="#161B22" rx="6" opacity="0.5"/>
+<text x="191" y="124" text-anchor="end" font-size="12" fill="#F0F6FC">Startup Time</text>
+<rect x="211" y="112" width="4.0" height="14" rx="3" fill="url(#grad-claw)"/>
+<text x="220" y="124" font-size="10" fill="#F0F6FC" font-weight="600">1.2 ms</text>
+<rect x="211" y="130" width="406.9" height="14" rx="3" fill="url(#grad-claude)"/>
+<text x="622.9356253637663" y="142" font-size="10" fill="#8B949E">86.4 ms</text>
+<rect x="702" y="119" width="90" height="18" rx="9" fill="#E8590C" opacity="0.18"/>
+<text x="747" y="131" text-anchor="middle" font-size="10" font-weight="700" fill="#E8590C">73.2x faster</text>
+<text x="191" y="178" text-anchor="end" font-size="12" fill="#F0F6FC">Binary Size</text>
+<rect x="211" y="166" width="226.7" height="14" rx="3" fill="url(#grad-claw)"/>
+<text x="442.7130767498004" y="178" font-size="10" fill="#F0F6FC" font-weight="600">13 MB</text>
+<rect x="211" y="184" width="495.0" height="14" rx="3" fill="url(#grad-claude)"/>
+<text x="711.0" y="196" font-size="10" fill="#8B949E">218 MB</text>
+<rect x="702" y="173" width="90" height="18" rx="9" fill="#E8590C" opacity="0.18"/>
+<text x="747" y="185" text-anchor="middle" font-size="10" font-weight="700" fill="#E8590C">17x smaller</text>
+<rect x="24" y="216" width="772" height="54" fill="#161B22" rx="6" opacity="0.5"/>
+<text x="191" y="232" text-anchor="end" font-size="12" fill="#F0F6FC">Memory (idle)</text>
+<rect x="211" y="220" width="116.9" height="14" rx="3" fill="url(#grad-claw)"/>
+<text x="332.9106298881953" y="232" font-size="10" fill="#F0F6FC" font-weight="600">4.1 MB</text>
+<rect x="211" y="238" width="482.7" height="14" rx="3" fill="url(#grad-claude)"/>
+<text x="698.6675411269123" y="250" font-size="10" fill="#8B949E">191.5 MB</text>
+<rect x="702" y="227" width="90" height="18" rx="9" fill="#E8590C" opacity="0.18"/>
+<text x="747" y="239" text-anchor="middle" font-size="10" font-weight="700" fill="#E8590C">46.7x less</text>
+<line x1="24" y1="280" x2="796" y2="280" stroke="#30363D" stroke-width="1"/>
+<text x="24" y="302" font-size="12" font-weight="600" fill="#8B949E" letter-spacing="0.5">CLAW vs CODEX CLI</text>
+<rect x="24" y="312" width="772" height="54" fill="#161B22" rx="6" opacity="0.5"/>
+<text x="191" y="328" text-anchor="end" font-size="12" fill="#F0F6FC">Startup Time</text>
+<rect x="211" y="316" width="4.0" height="14" rx="3" fill="url(#grad-claw)"/>
+<text x="220" y="328" font-size="10" fill="#F0F6FC" font-weight="600">1.2 ms</text>
+<rect x="211" y="334" width="455.9" height="14" rx="3" fill="url(#grad-codex)"/>
+<text x="671.9462054553236" y="346" font-size="10" fill="#8B949E">34.5 ms</text>
+<rect x="702" y="323" width="90" height="18" rx="9" fill="#E8590C" opacity="0.18"/>
+<text x="747" y="335" text-anchor="middle" font-size="10" font-weight="700" fill="#E8590C">29.2x faster</text>
+<text x="191" y="382" text-anchor="end" font-size="12" fill="#F0F6FC">Memory (idle)</text>
+<rect x="211" y="370" width="166.8" height="14" rx="3" fill="url(#grad-claw)"/>
+<text x="382.79540142162114" y="382" font-size="10" fill="#F0F6FC" font-weight="600">4.1 MB</text>
+<rect x="211" y="388" width="495.0" height="14" rx="3" fill="url(#grad-codex)"/>
+<text x="711.0" y="400" font-size="10" fill="#8B949E">46 MB</text>
+<rect x="702" y="377" width="90" height="18" rx="9" fill="#E8590C" opacity="0.18"/>
+<text x="747" y="389" text-anchor="middle" font-size="10" font-weight="700" fill="#E8590C">11.2x less</text>
+</svg>
