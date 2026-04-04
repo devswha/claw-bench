@@ -1,11 +1,16 @@
 # Layered Benchmark Suite Design
 
 **Date:** 2026-04-03
-**Status:** Approved
+**Status:** Roadmap Proposal
+**Role:** Roadmap
+**Authority:** Non-authoritative future-state design. Current-state truth lives in `README.md` plus runnable scripts (`bench-all.sh`, `experimental/*.sh`).
+**Relationship:** Broadens the April 1 planning/design artifacts into a future layered-suite roadmap. It does not supersede current repo truth until implemented and explicitly promoted.
 
 ## Overview
 
-Evolve claw-bench from a 2-tier structure (stable + experimental) to a 4-tier layered benchmark suite. All tiers run Claw Code, Claude Code, and Codex CLI symmetrically under identical conditions. Results are emitted as structured JSON and fed into an automated chart pipeline.
+> **Target-state note:** This document describes a proposed layered suite, not current repo behavior. As of the current repo review, `tasks/`, `results/`, `bench-practical.sh`, `bench-scale.sh`, `bench-harness.sh`, `scripts/lib/`, and `scripts/generate-charts.py` are not present. Heavy harnesses remain manual `experimental/` scripts, and runnable behavior is still Claw-first where script implementations differ from config JSON intent.
+
+Target state: evolve claw-bench from a 2-tier structure (stable + experimental) to a 4-tier layered benchmark suite. In the proposed future state, all tiers would run Claw Code, Claude Code, and Codex CLI symmetrically under identical conditions, with structured JSON results feeding an automated chart pipeline.
 
 ## Goals
 

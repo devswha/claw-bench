@@ -1,12 +1,20 @@
 # Task Effectiveness Benchmarks — Implementation Plan
 
+**Role:** Historical Reference
+**Authority:** Non-authoritative planning artifact. Current-state truth lives in `README.md` plus runnable scripts (`bench-all.sh`, `experimental/*.sh`).
+**Relationship:** Retained as April 1 planning context. The broader future-state direction is captured in `docs/superpowers/specs/2026-04-03-layered-benchmark-suite-design.md`, but current repo behavior still follows `README.md` and runnable scripts.
+
+> **Current-state note:** This document records an earlier plan for symmetric task-effectiveness benchmarking. In the current repo, heavy harnesses live under `experimental/`, are manual to run, and runnable scripts remain Claw-first even where config JSON files encode future symmetric intent.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add 3 task-level effectiveness benchmark scripts (SWE-bench, Terminal-Bench 2.0, Aider Polyglot) that measure CLI tool capability, complementing existing runtime performance benchmarks.
 
-**Architecture:** Each benchmark is a self-contained bash script that: (1) validates prerequisites (Docker, Python, CLI tools), (2) sets up the benchmark harness if not already installed, (3) runs tasks against both Claw and Claude, (4) collects results into JSON, (5) outputs a formatted comparison table. Results are stored per-run in timestamped directories. These benchmarks are NOT included in `bench-all.sh` due to their long runtime and API cost.
+**Architecture (original proposal):** Each benchmark would be a self-contained bash script that: (1) validates prerequisites (Docker, Python, CLI tools), (2) sets up the benchmark harness if not already installed, (3) runs tasks against both Claw and Claude, (4) collects results into JSON, and (5) outputs a formatted comparison table. In the current repo, these harnesses remain manual `experimental/` scripts, and runnable behavior is still Claw-first unless future script changes explicitly implement symmetric flows.
 
 **Tech Stack:** Bash, Docker, Python 3.10+, SWE-bench harness, Harbor eval framework, Aider polyglot runner
+
+> **Path/layout note:** File names below follow the original proposal wording. In the current repository, the heavy harness scripts live under `experimental/`, and runnable scripts are authoritative for present behavior.
 
 ---
 
@@ -79,7 +87,7 @@ Expected: No output (success)
 
 ```bash
 git add env.example.sh .gitignore
-git commit -m "feat: add task effectiveness config variables and gitignore entries"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -140,7 +148,7 @@ touch swebench/results/.gitkeep
 
 ```bash
 git add swebench/
-git commit -m "feat: add SWE-bench config and directory structure"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -334,7 +342,7 @@ Expected: No output (success)
 
 ```bash
 git add bench-swebench.sh
-git commit -m "feat: add SWE-bench Verified benchmark script"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -383,7 +391,7 @@ touch terminal-bench/results/.gitkeep
 
 ```bash
 git add terminal-bench/
-git commit -m "feat: add Terminal-Bench 2.0 config and directory structure"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -576,7 +584,7 @@ Expected: No output (success)
 
 ```bash
 git add bench-terminal.sh
-git commit -m "feat: add Terminal-Bench 2.0 benchmark script"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -623,7 +631,7 @@ touch polyglot/results/.gitkeep
 
 ```bash
 git add polyglot/
-git commit -m "feat: add Aider Polyglot config and directory structure"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -870,7 +878,7 @@ Expected: No output (success)
 
 ```bash
 git add bench-polyglot.sh
-git commit -m "feat: add Aider Polyglot benchmark script"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -932,7 +940,7 @@ sudo apt install python3-venv
 
 ```bash
 git add README.md
-git commit -m "docs: add task effectiveness benchmarks to README"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---

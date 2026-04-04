@@ -17,5 +17,6 @@ Project documentation including implementation plans and design specifications g
 ### Working In This Directory
 - Documentation here captures design decisions and implementation plans.
 - These are reference documents, not actively maintained runtime artifacts.
+- Current-state benchmark behavior is defined by `README.md` plus runnable repo scripts, not by planning artifacts under `docs/`.
 
 <!-- MANUAL: -->

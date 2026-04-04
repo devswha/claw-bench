@@ -1,8 +1,13 @@
 # Task Effectiveness Benchmarks — Design Spec
 
 **Date**: 2026-04-01
-**Status**: Draft
+**Status**: Historical Reference (Draft)
+**Role**: Historical Reference
+**Authority**: Non-authoritative design note. Current-state truth lives in `README.md` plus runnable scripts (`bench-all.sh`, `experimental/*.sh`).
+**Relationship**: Retained as April 1 design context. The broader future-state direction appears in `docs/superpowers/specs/2026-04-03-layered-benchmark-suite-design.md`, but current runnable harness behavior remains manual and Claw-first.
 **Purpose**: Add task-level effectiveness benchmarks that measure *what the CLI tools can do*, complementing the existing runtime performance benchmarks that measure *how fast they do it*.
+
+> **Current-state note:** In the current repo, heavy harnesses live under `experimental/`, remain manual to run, and runnable scripts are Claw-first even where config JSON files already encode possible future symmetric intent.
 
 ## Context
 

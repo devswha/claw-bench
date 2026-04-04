@@ -1,12 +1,20 @@
 # Runtime Overhead Dissection Benchmarks — Implementation Plan
 
+**Role:** Historical Reference
+**Authority:** Non-authoritative planning artifact. Current-state truth lives in `README.md` plus runnable scripts (`bench-all.sh`, `experimental/*.sh`).
+**Relationship:** Retained as April 1 planning context. Later roadmap expansion appears in `docs/superpowers/specs/2026-04-03-layered-benchmark-suite-design.md`, but neither overrides current repo truth until implemented and explicitly promoted.
+
+> **Current-state note:** This document records an earlier planning direction. In the current repo, `bench-all.sh` intentionally runs only the stable local runtime core (`startup`, `size`, `memory`), and the profiling scripts live under `experimental/`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add 5 new benchmark scripts (syscall, cpu, io, threads, gc) that structurally decompose Node.js runtime overhead vs Rust native binary using `strace` and `perf`.
 
-**Architecture:** Each benchmark is a standalone bash script following the existing pattern: source `env.sh`, validate binaries, check tool dependencies, measure both binaries, output formatted table with ratios. `bench-all.sh` orchestrates all scripts with graceful skip for missing tools.
+**Architecture (original proposal):** Each benchmark would be a standalone bash script following the existing pattern: source `env.sh`, validate binaries, check tool dependencies, measure both binaries, and output formatted tables with ratios. In this April 1 proposal, `bench-all.sh` would orchestrate the added scripts with graceful skip for missing tools. Current repo truth remains the stable-core behavior documented in `README.md` and `bench-all.sh`.
 
 **Tech Stack:** Bash, strace, perf (linux-tools), existing env.sh config
+
+> **Path/layout note:** File names below follow the original proposal wording. In the current repository, the corresponding profiling scripts live under `experimental/`, and `README.md` plus runnable scripts define the actual layout.
 
 ---
 
@@ -50,7 +58,7 @@ Expected: No output (success)
 
 ```bash
 git add env.example.sh
-git commit -m "feat: add strace/perf config variables to env.example.sh"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -159,7 +167,7 @@ Expected: No output (success)
 
 ```bash
 git add bench-syscall.sh
-git commit -m "feat: add syscall profiling benchmark (strace -c)"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -276,7 +284,7 @@ Expected: No output (success)
 
 ```bash
 git add bench-cpu.sh
-git commit -m "feat: add CPU hardware counters benchmark (perf stat)"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -386,7 +394,7 @@ Expected: No output (success)
 
 ```bash
 git add bench-io.sh
-git commit -m "feat: add file I/O overhead benchmark (strace trace filter)"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -494,7 +502,7 @@ Expected: No output (success)
 
 ```bash
 git add bench-threads.sh
-git commit -m "feat: add thread footprint benchmark (/proc/pid/task)"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -635,7 +643,7 @@ Expected: No output (success)
 
 ```bash
 git add bench-gc.sh
-git commit -m "feat: add GC/allocation pressure benchmark (perf + /proc RSS)"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -709,7 +717,7 @@ Expected: No output (success)
 
 ```bash
 git add bench-all.sh
-git commit -m "feat: add runtime overhead benchmarks to bench-all.sh with graceful skip"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---
@@ -772,7 +780,7 @@ echo 0 | sudo tee /proc/sys/kernel/perf_event_paranoid
 
 ```bash
 git add README.md
-git commit -m "docs: add runtime overhead benchmarks to README"
+# Commit the staged changes using a Lore-protocol message per AGENTS.md.
 ```
 
 ---

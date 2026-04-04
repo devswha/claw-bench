@@ -1,8 +1,13 @@
 # Runtime Overhead Dissection Benchmarks — Design Spec
 
 **Date**: 2026-04-01
-**Status**: Draft
+**Status**: Historical Reference (Draft)
+**Role**: Historical Reference
+**Authority**: Non-authoritative design note. Current-state truth lives in `README.md` plus runnable scripts (`bench-all.sh`, `experimental/*.sh`).
+**Relationship**: Retained as April 1 design context. Later layered-suite roadmap direction appears in `docs/superpowers/specs/2026-04-03-layered-benchmark-suite-design.md`.
 **Purpose**: Add 5 new benchmarks that structurally decompose Node.js runtime overhead vs Rust native binary performance.
+
+> **Current-state note:** This design captures an earlier direction. In the current repo, `bench-all.sh` still runs only the stable core (`startup`, `size`, `memory`), while the profiling scripts live under `experimental/`.
 
 ## Context
 
