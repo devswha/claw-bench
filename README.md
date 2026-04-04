@@ -31,6 +31,8 @@ Minimal benchmark suite comparing **Claw Code** (Rust single-binary CLI) vs **Cl
 
 Everything else in this repo is **manual / experimental** and should be treated as exploratory rather than headline-quality benchmarking.
 
+Default stable-suite behavior remains **human-readable terminal output**. If you want machine-readable artifacts, the Tier 0 scripts also support an optional `--json` mode that writes timestamped results under `results/tier0/`.
+
 ## Sample Results
 
 Measured on Ubuntu 24.04 (Linux 6.8), same machine, same API endpoint.
@@ -140,6 +142,9 @@ vi env.sh
 ./bench-startup.sh
 ./bench-size.sh
 ./bench-memory.sh
+
+# Optional: persist a machine-readable Tier 0 result file
+./bench-startup.sh --json
 ```
 
 ## Configuration
@@ -162,7 +167,8 @@ Codex does **not** use `ANTHROPIC_API_KEY` in this repo; it relies on your exist
 - `env.sh` is gitignored and never committed
 - API keys are exported in subshells only — automatically cleaned up on exit
 - Binary paths are validated before execution
-- Runtime benchmarks do not intentionally persist result files, but task-effectiveness harnesses clone repos, create virtualenvs, and write timestamped results under `swebench/results/`, `terminal-bench/results/`, and `polyglot/results/`
+- Stable runtime benchmarks stay terminal-only by default, but `--json` writes timestamped Tier 0 artifacts under `results/tier0/`
+- Task-effectiveness harnesses clone repos, create virtualenvs, and write timestamped results under `swebench/results/`, `terminal-bench/results/`, and `polyglot/results/`
 
 ## License
 
