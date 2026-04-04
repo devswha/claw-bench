@@ -45,6 +45,30 @@ Measured on Ubuntu 24.04 (Linux 6.8), same machine, same API endpoint.
 
 > Results vary by machine, network, and API provider. Run your own benchmarks.
 
+### Latest Local Validation Snapshot — 2026-04-04
+
+The following values come from the most recent local verification run on this machine. Treat them as a **manual snapshot**, not a headline-quality published benchmark:
+
+| Benchmark | Claw | Claude | Codex |
+|-----------|------|--------|-------|
+| Startup time (`--version`) | **1.2 ms** | 445.7 ms | 37.7 ms |
+| Total install footprint | **13 MB** | 13 MB* | 163 MB |
+| Idle memory (`--version`) | **4.2 MB** | 166.3 MB | 46.0 MB |
+
+\* Claude’s install footprint resolved as **binary-only** on this machine because `node_modules` was not found adjacent to the CLI binary during the check.
+
+### Latest Tier 1 Practical Preview — 2026-04-04
+
+This is the current one-task bootstrap slice from `experimental/bench-practical.sh` (`01-add-function`):
+
+| Tool | Status | Duration | Diff lines |
+|------|--------|----------|------------|
+| Claw | failed | 46 ms | 0 |
+| Claude | failed (timeout) | 180510 ms | 0 |
+| Codex | **passed** | 22491 ms | 3 |
+
+This Tier 1 result is still **manual / experimental** and should be read as a harness-validation snapshot, not a broad capability claim.
+
 ### Optional Codex Runtime Comparison
 
 If `CODEX_BIN` is configured and `codex` is already authenticated locally, the stable core scripts (`startup`, `size`, `memory`) will include **Codex CLI** automatically.
