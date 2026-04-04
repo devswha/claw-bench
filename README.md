@@ -31,7 +31,7 @@ Minimal benchmark suite comparing **Claw Code** (Rust single-binary CLI) vs **Cl
 
 Everything else in this repo is **manual / experimental** and should be treated as exploratory rather than headline-quality benchmarking.
 
-Default stable-suite behavior remains **human-readable terminal output**. If you want machine-readable artifacts, the Tier 0 scripts also support an optional `--json` mode under `results/tier0/`: individual scripts write one JSON file, and `./bench-all.sh --json` writes a timestamped directory containing one JSON file per stable benchmark.
+Default stable-suite behavior remains **human-readable terminal output**. If you want machine-readable artifacts, the three stable benchmark scripts (`bench-startup.sh`, `bench-size.sh`, `bench-memory.sh`) also support an optional `--json` mode that writes one JSON file under `results/tier0/`.
 
 ## Sample Results
 
@@ -137,9 +137,6 @@ vi env.sh
 
 # Run the stable suite
 ./bench-all.sh
-
-# Optional: persist machine-readable Tier 0 artifacts for the full stable suite
-./bench-all.sh --json
 
 # Or run individual stable scripts
 ./bench-startup.sh
