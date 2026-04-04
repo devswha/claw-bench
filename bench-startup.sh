@@ -7,7 +7,7 @@ source "$DIR/env.sh"
 
 usage() {
     cat <<'EOF'
-Usage: ./bench-startup.sh [--json]
+Usage: ./bench-startup.sh [--json [OUTPUT_PATH]]
 
 Options:
   --json    Write machine-readable Tier 0 results to results/tier0/<timestamp>.json
@@ -15,11 +15,24 @@ Options:
 EOF
 }
 
+default_json_output() {
+    printf "%s/results/tier0/startup-time-%s.json\n" "$DIR" "$(date -u '+%Y%m%dT%H%M%SZ')"
+}
+
 json_output=""
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --json)
-            json_output="$DIR/results/tier0/$(date -u '+%Y%m%dT%H%M%SZ').json"
+            if [ "$#" -ge 2 ] && [ "${2#--}" = "$2" ]; then
+                json_output="$2"
+                shift 2
+            else
+                json_output="$(default_json_output)"
+                shift
+            fi
+            ;;
+        --json=*)
+            json_output="${1#--json=}"
             shift
             ;;
         -h|--help)
