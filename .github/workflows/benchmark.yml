@@ -31,6 +31,8 @@ on:
     paths:
       - 'bench-*.sh'
       - 'bench-all.sh'
+      - 'experimental/bench-*.sh'
+      - 'tasks/**'
       - 'env.example.sh'
 
 jobs:
@@ -73,6 +75,19 @@ jobs:
             echo -n "  bash -n $f ... "
             bash -n "$f" && echo "OK" || { echo "FAIL"; exit 1; }
           done
+
+      - name: Validate task metadata JSON
+        run: |
+          if [ -f tasks/manifest.json ]; then
+            echo "Validating task metadata JSON..."
+            python3 -m json.tool tasks/manifest.json >/dev/null
+            find tasks -name 'task.json' -print0 | while IFS= read -r -d '' f; do
+              echo "  json.tool $f"
+              python3 -m json.tool "$f" >/dev/null
+            done
+          else
+            echo "No tasks/manifest.json present; skipping task metadata validation."
+          fi
 
       # ── Validate env.example.sh variables are well-formed ─────────────────
       - name: Validate env.example.sh structure

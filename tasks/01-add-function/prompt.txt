@@ -1,0 +1,7 @@
+Implement `is_palindrome(s)` in `palindrome.py` so the tests pass.
+
+Rules:
+- Edit files directly in the current workspace.
+- Do not modify the tests.
+- Keep the implementation simple and readable.
+- Treat this as a one-turn practical benchmark task.

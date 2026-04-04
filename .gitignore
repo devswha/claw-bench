@@ -6,6 +6,7 @@ env.sh
 .omx/
 logs/
 results/tier0/
+results/tier1/
 
 # Task effectiveness benchmark results (large JSON files)
 swebench/results/

@@ -1,0 +1,9 @@
+{
+  "id": "01-add-function",
+  "prompt_file": "prompt.txt",
+  "workspace_dir": "workspace",
+  "tests_dir": "tests",
+  "verify_command": "python3 -m unittest discover -s tests -p 'test_*.py'",
+  "max_turns": 1,
+  "language": "python"
+}

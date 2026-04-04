@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "tier": 1,
+  "benchmark": "practical_tasks",
+  "tasks": [
+    {
+      "id": "01-add-function",
+      "name": "Add is_palindrome(s) to empty file",
+      "dir": "tasks/01-add-function",
+      "enabled": true
+    }
+  ]
+}

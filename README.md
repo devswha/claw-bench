@@ -70,6 +70,7 @@ These scripts are still in the repo, but are **not** part of the default suite b
 - `experimental/bench-io.sh`
 - `experimental/bench-threads.sh`
 - `experimental/bench-gc.sh`
+- `experimental/bench-practical.sh`
 - `experimental/bench-swebench.sh`
 - `experimental/bench-terminal.sh`
 - `experimental/bench-polyglot.sh`
@@ -79,6 +80,7 @@ Use them manually only if you are comfortable with:
 - timeout-capped measurements
 - Docker / Python harness setup
 - Claw-first task harnesses rather than symmetric tool-vs-tool evaluation
+- manual/early Tier 1 practical-task previews rather than a full task suite
 
 ## Benchmarks
 
@@ -95,6 +97,7 @@ Use them manually only if you are comfortable with:
 | `experimental/bench-io.sh` | File open/read/write counts | `strace -e trace=` |
 | `experimental/bench-threads.sh` | Thread/process footprint | `/proc/pid/task` |
 | `experimental/bench-gc.sh` | Page faults, RSS growth | `perf stat` + `/proc` |
+| `experimental/bench-practical.sh` | Tier 1 practical coding task preview | temp workspace + verifier |
 | `experimental/bench-swebench.sh` | SWE-bench Verified score | Docker + Python |
 | `experimental/bench-terminal.sh` | Terminal-Bench 2.0 score | Docker + Harbor |
 | `experimental/bench-polyglot.sh` | Aider Polyglot score | Python + git |
@@ -148,6 +151,9 @@ vi env.sh
 
 # Optional: persist machine-readable Tier 0 results for the full stable suite
 ./bench-all.sh --json
+
+# Manual / experimental: run the Tier 1 practical bootstrap slice
+./experimental/bench-practical.sh --json
 ```
 
 ## Configuration
@@ -172,6 +178,7 @@ Codex does **not** use `ANTHROPIC_API_KEY` in this repo; it relies on your exist
 - Binary paths are validated before execution
 - Stable runtime benchmarks stay terminal-only by default, but `--json` writes timestamped Tier 0 artifacts under `results/tier0/`
 - `bench-all.sh --json` emits `startup-time.json`, `install-size.json`, `idle-memory.json`, and `manifest.json`
+- Tier 1 practical-task previews are manual/experimental and write JSON under `results/tier1/`
 - Task-effectiveness harnesses clone repos, create virtualenvs, and write timestamped results under `swebench/results/`, `terminal-bench/results/`, and `polyglot/results/`
 
 ## License
