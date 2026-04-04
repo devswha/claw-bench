@@ -5,6 +5,7 @@ env.sh
 .claude/
 .omx/
 logs/
+results/tier0/
 
 # Task effectiveness benchmark results (large JSON files)
 swebench/results/
