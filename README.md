@@ -31,7 +31,7 @@ Minimal benchmark suite comparing **Claw Code** (Rust single-binary CLI) vs **Cl
 
 Everything else in this repo is **manual / experimental** and should be treated as exploratory rather than headline-quality benchmarking.
 
-Default stable-suite behavior remains **human-readable terminal output**. If you want machine-readable artifacts, the three stable benchmark scripts support an optional `--json` mode that writes one JSON file under `results/tier0/`, and `./bench-all.sh --json` writes a timestamped Tier 0 directory containing one JSON file per stable benchmark.
+Default stable-suite behavior remains **human-readable terminal output**. If you want machine-readable artifacts, the three stable benchmark scripts support an optional `--json` mode that writes one JSON file under `results/tier0/`, and `./bench-all.sh --json` writes a timestamped Tier 0 directory containing one per-benchmark JSON file plus `manifest.json`. The three per-benchmark Tier 0 JSON files share one envelope: `schema_version`, `suite`, `tier`, `benchmark`, `script`, `run_id`, `generated_at`, `environment`, `tools`, and `results`; `manifest.json` is the companion index for the suite run.
 
 ## Sample Results
 
@@ -171,6 +171,7 @@ Codex does **not** use `ANTHROPIC_API_KEY` in this repo; it relies on your exist
 - API keys are exported in subshells only — automatically cleaned up on exit
 - Binary paths are validated before execution
 - Stable runtime benchmarks stay terminal-only by default, but `--json` writes timestamped Tier 0 artifacts under `results/tier0/`
+- `bench-all.sh --json` emits `startup-time.json`, `install-size.json`, `idle-memory.json`, and `manifest.json`
 - Task-effectiveness harnesses clone repos, create virtualenvs, and write timestamped results under `swebench/results/`, `terminal-bench/results/`, and `polyglot/results/`
 
 ## License

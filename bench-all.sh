@@ -4,7 +4,8 @@ set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 JSON_DIR=""
-RUN_TIMESTAMP="$(date '+%Y%m%d-%H%M%S')"
+RUN_TIMESTAMP="$(date -u '+%Y%m%dT%H%M%SZ')"
+RUN_ID="tier0-$RUN_TIMESTAMP"
 
 usage() {
     echo "Usage: $0 [--json [OUTPUT_DIR]]" >&2
@@ -81,11 +82,47 @@ run_stable_script() {
     local script="$1"
 
     if [ -n "$JSON_DIR" ] && supports_json "$script"; then
-        run_benchmark "$script" --json "$(json_path_for_script "$script")"
+        TIER0_RUN_ID="$RUN_ID" run_benchmark "$script" --json "$(json_path_for_script "$script")"
         return 0
     fi
 
     run_benchmark "$script"
+}
+
+write_manifest() {
+    [ -n "$JSON_DIR" ] || return 0
+
+    python3 - "$JSON_DIR" "$RUN_ID" <<'PY'
+import json
+import pathlib
+import sys
+from datetime import datetime, timezone
+
+json_dir = pathlib.Path(sys.argv[1])
+run_id = sys.argv[2]
+files = sorted(p.name for p in json_dir.glob("*.json") if p.name != "manifest.json")
+benchmarks = {}
+for name in files:
+    if name == "startup-time.json":
+        benchmarks["startup"] = name
+    elif name == "install-size.json":
+        benchmarks["install_size"] = name
+    elif name == "idle-memory.json":
+        benchmarks["idle_memory"] = name
+
+payload = {
+    "schema_version": "1.0",
+    "suite": "tier0",
+    "tier": 0,
+    "script": "bench-all.sh",
+    "run_id": run_id,
+    "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+    "benchmarks": benchmarks,
+    "files": files,
+}
+
+(json_dir / "manifest.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+PY
 }
 
 parse_args "$@"
@@ -112,6 +149,8 @@ for script in \
 do
     run_stable_script "$script"
 done
+
+write_manifest
 
 echo "========================================"
 echo "  Stable benchmark complete"

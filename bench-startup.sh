@@ -19,6 +19,8 @@ default_json_output() {
     printf "%s/results/tier0/startup-time-%s.json\n" "$DIR" "$(date -u '+%Y%m%dT%H%M%SZ')"
 }
 
+RUN_ID="${TIER0_RUN_ID:-tier0-$(date -u '+%Y%m%dT%H%M%SZ')}"
+
 json_output=""
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -107,7 +109,7 @@ fi
 hyperfine "${hyperfine_args[@]}" "${commands[@]}"
 
 if [ -n "$json_output" ]; then
-    python3 - "$hyperfine_export" "$json_output" "$CLAW_BIN" "$CLAUDE_BIN" "${CODEX_BIN:-}" <<'PY'
+    python3 - "$hyperfine_export" "$json_output" "$RUN_ID" "$CLAW_BIN" "$CLAUDE_BIN" "${CODEX_BIN:-}" <<'PY'
 import json
 import os
 import pathlib
@@ -117,7 +119,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
-raw_path, output_path, claw_bin, claude_bin, codex_bin = sys.argv[1:6]
+raw_path, output_path, run_id, claw_bin, claude_bin, codex_bin = sys.argv[1:7]
 
 with open(raw_path, "r", encoding="utf-8") as fh:
     raw = json.load(fh)
@@ -154,10 +156,12 @@ def tool_version(binary: str) -> str:
 
 payload = {
     "schema_version": "1.0",
-    "timestamp": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+    "suite": "tier0",
     "tier": 0,
     "benchmark": "startup",
     "script": "bench-startup.sh",
+    "run_id": run_id,
+    "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
     "environment": {
         "os": platform.system(),
         "kernel": platform.release(),
@@ -166,26 +170,25 @@ payload = {
     "tools": {
         tool: {
             "binary": binary,
+            "resolved_path": os.path.realpath(binary),
             "version": tool_version(binary),
         }
         for tool, binary in tool_bins.items()
     },
-    "results": [],
+    "results": {},
 }
 
 for result in raw.get("results", []):
-    payload["results"].append(
-        {
-            "tool": detect_tool(result.get("command", "")),
-            "command": result.get("command"),
-            "mean_seconds": result.get("mean"),
-            "stddev_seconds": result.get("stddev"),
-            "median_seconds": result.get("median"),
-            "min_seconds": result.get("min"),
-            "max_seconds": result.get("max"),
-            "times_seconds": result.get("times", []),
-        }
-    )
+    tool = detect_tool(result.get("command", ""))
+    payload["results"][tool] = {
+        "command": result.get("command"),
+        "mean_seconds": result.get("mean"),
+        "stddev_seconds": result.get("stddev"),
+        "median_seconds": result.get("median"),
+        "min_seconds": result.get("min"),
+        "max_seconds": result.get("max"),
+        "times_seconds": result.get("times", []),
+    }
 
 pathlib.Path(output_path).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 PY

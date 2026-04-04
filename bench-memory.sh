@@ -12,8 +12,10 @@ usage() {
 default_json_output() {
     local dir
     dir="$(cd "$(dirname "$0")" && pwd)"
-    printf "%s/results/tier0/idle-memory-%s.json\n" "$dir" "$(date '+%Y%m%d-%H%M%S')"
+    printf "%s/results/tier0/idle-memory-%s.json\n" "$dir" "$(date -u '+%Y%m%dT%H%M%SZ')"
 }
+
+RUN_ID="${TIER0_RUN_ID:-tier0-$(date -u '+%Y%m%dT%H%M%SZ')}"
 
 parse_args() {
     while [ "$#" -gt 0 ]; do
@@ -48,14 +50,19 @@ parse_args() {
 write_json_result() {
     [ -n "$JSON_OUTPUT" ] || return 0
 
-    python3 - "$JSON_OUTPUT" "$generated_at" "$CLAW_BIN" "$claw_rss_kb" "$claw_rss_mb" "$claw_timed_out" "$CLAUDE_BIN" "$claude_rss_kb" "$claude_rss_mb" "$claude_timed_out" "$has_codex" "${CODEX_BIN:-}" "${codex_rss_kb:-}" "${codex_rss_mb:-}" "${codex_timed_out:-}" <<'PY'
+    python3 - "$JSON_OUTPUT" "$generated_at" "$RUN_ID" "$CLAW_BIN" "$claw_rss_kb" "$claw_rss_mb" "$claw_timed_out" "$CLAUDE_BIN" "$claude_rss_kb" "$claude_rss_mb" "$claude_timed_out" "$has_codex" "${CODEX_BIN:-}" "${codex_rss_kb:-}" "${codex_rss_mb:-}" "${codex_timed_out:-}" <<'PY'
 import json
+import os
+import platform
+import socket
+import subprocess
 import sys
 from pathlib import Path
 
 (
     output_path,
     generated_at,
+    run_id,
     claw_path,
     claw_rss_kb,
     claw_rss_mb,
@@ -76,15 +83,41 @@ def as_number(value: str):
     return int(value) if value.isdigit() else None
 
 
+def tool_version(binary: str) -> str:
+    try:
+        proc = subprocess.run(
+            [binary, "--version"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return ""
+
+    combined = [line.strip() for line in (proc.stdout + "\n" + proc.stderr).splitlines() if line.strip()]
+    return combined[0] if combined else ""
+
+
+tools = {
+    "claw": {
+        "binary": claw_path,
+        "resolved_path": os.path.realpath(claw_path),
+        "version": tool_version(claw_path),
+    },
+    "claude": {
+        "binary": claude_path,
+        "resolved_path": os.path.realpath(claude_path),
+        "version": tool_version(claude_path),
+    },
+}
+
 results = {
     "claw": {
-        "path": claw_path,
         "rss_kb": as_number(claw_rss_kb),
         "rss_mb": float(claw_rss_mb),
         "timed_out": claw_timed_out == "true",
     },
     "claude": {
-        "path": claude_path,
         "rss_kb": as_number(claude_rss_kb),
         "rss_mb": float(claude_rss_mb),
         "timed_out": claude_timed_out == "true",
@@ -92,19 +125,31 @@ results = {
 }
 
 if has_codex == "true":
+    tools["codex"] = {
+        "binary": codex_path,
+        "resolved_path": os.path.realpath(codex_path),
+        "version": tool_version(codex_path),
+    }
     results["codex"] = {
-        "path": codex_path,
         "rss_kb": as_number(codex_rss_kb),
         "rss_mb": float(codex_rss_mb),
         "timed_out": codex_timed_out == "true",
     }
 
 payload = {
-    "schema_version": 1,
+    "schema_version": "1.0",
     "suite": "tier0",
+    "tier": 0,
     "benchmark": "idle_memory",
+    "script": "bench-memory.sh",
+    "run_id": run_id,
     "generated_at": generated_at,
-    "command_mode": "--version",
+    "environment": {
+        "os": platform.system(),
+        "kernel": platform.release(),
+        "hostname": socket.gethostname(),
+    },
+    "tools": tools,
     "results": results,
 }
 
