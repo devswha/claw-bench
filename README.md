@@ -4,6 +4,8 @@
 
 **Runtime overhead benchmarks for AI coding CLIs — Rust vs Node.js**
 
+> **Note:** Task-effectiveness benchmarking (SWE-bench, practical coding tasks, token tracking) has moved to **[OpenBench](https://github.com/devswha/OpenBench)** — an open benchmarking framework that compares coding-agent CLIs (Claude Code, Codex, and their plugin wrappers) with same tasks, same environment, and comparable results. claw-bench remains available for runtime overhead measurements (startup, memory, binary size).
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://github.com/devswha/claw-bench/actions/workflows/benchmark.yml/badge.svg)](https://github.com/devswha/claw-bench/actions/workflows/benchmark.yml)
 [![Benchmark](https://img.shields.io/badge/benchmark-stable_suite-E8590C)](bench-all.sh)
@@ -55,7 +57,7 @@ The following values come from the most recent local verification run on this ma
 | Total install footprint | **13 MB** | 13 MB* | 163 MB |
 | Idle memory (`--version`) | **4.2 MB** | 166.3 MB | 46.0 MB |
 
-\* Claude’s install footprint resolved as **binary-only** on this machine because `node_modules` was not found adjacent to the CLI binary during the check.
+\* Claude's install footprint resolved as **binary-only** on this machine because `node_modules` was not found adjacent to the CLI binary during the check.
 
 ### Latest Tier 1 Practical Preview — 2026-04-04
 
